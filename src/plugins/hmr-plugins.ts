@@ -45,7 +45,7 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
     // where we read, transform, and write the manifest
     buildStart() {
       const root = resolvedConfig.root;
-      const outDir = resolvedConfig.build.outDir;
+      const outDir = path.resolve(root, resolvedConfig.build.outDir);
 
       // Read the source manifest
       const srcPath = path.resolve(root, "manifest.json");
@@ -120,16 +120,10 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
 
       console.log(`[ext-hmr] WS server started on ws://localhost:${wsPort}`);
 
-      // ----------------------------------------------------------------
-      // 2. Watch output files for changes
-      // ----------------------------------------------------------------
-      // We can't use server.watcher here because that watches source files.
-      // We need to watch the built output files instead.
-      // fs.watch is Node's built-in file watcher — simple and sufficient.
       const outDir = path.resolve(resolvedConfig.build.outDir);
 
       const backgroundOut = path.join(outDir, "background.js");
-      const contentOut = path.join(outDir, "content", "index.js");
+      const contentOut = path.join(outDir, "content.js");
 
       watchFile(backgroundOut, () => {
         console.log(`[hmr] background rebuilt, reloading extension`);
@@ -164,30 +158,30 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
     },
   };
   const serverConfigPlugin: Plugin = {
-  name: "hmr:server-config",
+    name: "hmr:server-config",
 
-  config() {
-    return {
-      server: {
-        port: devPort,
-        strictPort: true,  // fail if port is already in use, don't pick a random one
-        cors: {
-          // allow requests from extension pages
-          origin: [
-            /chrome-extension:\/\/.*/,
-            /moz-extension:\/\/.*/,
-            /http:\/\/localhost/,
-          ],
-        },
-        hmr: {
-          protocol: "ws",
-          host: "localhost",
+    config() {
+      return {
+        server: {
           port: devPort,
+          strictPort: true, // fail if port is already in use, don't pick a random one
+          cors: {
+            // allow requests from extension pages
+            origin: [
+              /chrome-extension:\/\/.*/,
+              /moz-extension:\/\/.*/,
+              /http:\/\/localhost/,
+            ],
+          },
+          hmr: {
+            protocol: "ws",
+            host: "localhost",
+            port: devPort,
+          },
         },
-      },
-    }
-  },
-}
+      };
+    },
+  };
 
   return [manifestPlugin, devServerPlugin, devClientPlugin, serverConfigPlugin];
 }

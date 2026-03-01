@@ -52,7 +52,7 @@ export function generateDevClient(wsPort: number): string {
 
       await chrome.scripting.registerContentScripts([{
         id: scriptId,
-        js: ['content/index.js'],
+        js: ['content.js'],
         matches: ['<all_urls>'],
         runAt: 'document_idle',
       }]);
@@ -75,5 +75,5 @@ export function generateDevClient(wsPort: number): string {
 
   connect();
 })();
-`
+`;
 }
