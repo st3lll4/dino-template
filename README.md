@@ -30,7 +30,7 @@ Then load your extension from `dist/`:
 
 ## Production build
 
-When you're ready to go live and look good doing it:
+When you're ready to go live:
 
 ```bash
 # Chrome MV3
@@ -43,7 +43,7 @@ npm run build:firefox
 npm run build:firefox-mv3
 ```
 
-Output lands in `dist/`. Ship it.
+Output lands in `dist/`. I'll setup ci/cd later. It's giving automation, queen.
 
 ## Tests
 
