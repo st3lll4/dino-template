@@ -1,15 +1,13 @@
 # ✨ Extension template
 
-Your cross-browser extension starter with Hot Module Replacement. Messaging and type safety on the way.
-No refreshing manually like it's 2012. Supports Chrome MV3, Firefox MV2, and Firefox MV3 because we don't discriminate.
+Your cross-browser extension starter. 
+No refreshing manually like it's 2012. Supports Chrome MV3, Firefox MV2, and Firefox MV3 because we don't discriminate. Has HMR! Messaging and type safety on the way.
 
 ## 💅 Setup
 
 ```bash
 npm install
 ```
-
-One command. That's it. You're basically already done.
 
 ## 🔥 Dev mode
 
