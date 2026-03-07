@@ -1,6 +1,7 @@
 # ✨ Extension template
 
-Your cross-browser extension starter with Hot Module Replacement. No refreshing manually like it's 2012. Supports Chrome MV3, Firefox MV2, and Firefox MV3 because we don't discriminate.
+Your cross-browser extension starter with Hot Module Replacement. Messaging and type safety on the way.
+No refreshing manually like it's 2012. Supports Chrome MV3, Firefox MV2, and Firefox MV3 because we don't discriminate.
 
 ## 💅 Setup
 
