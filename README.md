@@ -2,7 +2,7 @@
 
 Your cross-browser extension starter with Hot Module Replacement. No refreshing manually like it's 2012. Supports Chrome MV3, Firefox MV2, and Firefox MV3 because we don't discriminate.
 
-## 💅 setup
+## 💅 Setup
 
 ```bash
 npm install
