@@ -7,13 +7,13 @@ export default defineConfig({
     outDir: "../dist",
     rollupOptions: {
       input: {
-        background: "src/background.js",
-        content: "src/content.js",
-        popup: "src/popup/popup.html",
-        sidepanel: "src/sidepanel/sidepanel.html",
+        background: "src/entrypoints/background/index.ts",
+        content: "src/entrypoints/content/index.ts",
+        popup: "src/entrypoints/popup/popup.html",
+        sidepanel: "src/entrypoints/sidepanel/sidepanel.html",
       },
       output: {
-        entryFileNames: "[name].js", 
+        entryFileNames: "[name].js",
         chunkFileNames: "[name].js",
         assetFileNames: "[name].[ext]",
       },

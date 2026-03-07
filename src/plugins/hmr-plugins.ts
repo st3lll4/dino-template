@@ -15,7 +15,7 @@ import { generateDevClient } from "../helpers/generateDevClient";
 
 export function hmrPlugin(options: HmrOptions): Plugin[] {
   const browser: TargetBrowser =
-    options.browser ?? (process.env.BROWSER as TargetBrowser) ?? "chrome";
+    options.browser ?? (process.env.BROWSER as TargetBrowser) ?? "chrome-mv3";
   const wsPort = options.wsPort ?? 5174;
   const devPort = options.devPort ?? 5173;
 
