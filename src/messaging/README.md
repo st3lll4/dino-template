@@ -86,7 +86,7 @@ The content script must have called `initMessaging()` for this to work.
 
 ### `initMessaging()`
 
-Wires up `chrome.runtime.onMessage`. Call once per context that needs to receive messages (background, content scripts). No-op if called again.
+Wires up `chrome.runtime.onMessage`. Call once per context that needs to receive messages (background, content scripts); calling it more than once in the same context will register additional listeners and should be avoided.
 
 ---
 
