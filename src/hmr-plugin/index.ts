@@ -8,10 +8,10 @@ import type {
   SourceManifest,
   ExtensionToServerEvent,
   TargetBrowser,
-} from "../types/hmr-plugin-types"; // only used for type checking, erased at runtime
-import { transformManifest } from "../helpers/transformManifest";
-import { watchFile } from "../helpers/watchFile";
-import { generateDevClient } from "../helpers/generateDevClient";
+} from "./types";
+import { transformManifest } from "./transformManifest";
+import { watchFile } from "./watchFile";
+import { generateDevClient } from "./generateDevClient";
 
 export function hmrPlugin(options: HmrOptions): Plugin[] {
   const browser: TargetBrowser =
@@ -44,11 +44,10 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
 
     // where we read, transform, and write the manifest
     buildStart() {
-      const root = resolvedConfig.root;
-      const outDir = path.resolve(root, resolvedConfig.build.outDir);
+      const outDir = resolvedConfig.build.outDir;
 
       // Read the source manifest
-      const srcPath = path.resolve(root, "manifest.json");
+      const srcPath = path.resolve(resolvedConfig.root, "manifest.json");
       if (!fs.existsSync(srcPath)) {
         this.error(`Could not find manifest.json at ${srcPath}`);
         return;
@@ -67,8 +66,10 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
 
       // Make sure the output directory exists and write to it
       fs.mkdirSync(outDir, { recursive: true });
-      const outPath = path.resolve(outDir, "manifest.json");
-      fs.writeFileSync(outPath, JSON.stringify(transformed, null, 2));
+      fs.writeFileSync(
+        path.join(outDir, "manifest.json"),
+        JSON.stringify(transformed, null, 2),
+      );
 
       console.log(`[ext-hmr] manifest.json written for ${browser}`);
     },
@@ -120,7 +121,7 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
 
       console.log(`[ext-hmr] WS server started on ws://localhost:${wsPort}`);
 
-      const outDir = path.resolve(resolvedConfig.build.outDir);
+      const outDir = resolvedConfig.build.outDir;
 
       const backgroundOut = path.join(outDir, "background.js");
       const contentOut = path.join(outDir, "content.js");

@@ -3,7 +3,8 @@
     "target": "ES2020",
     "module": "ESNext",
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "types": ["chrome"]
   },
-  "include": ["src/**/*", "src/test"]
+  "include": ["src/**/*", "src/tests-trash"]
 }
