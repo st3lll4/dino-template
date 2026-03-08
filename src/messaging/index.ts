@@ -28,6 +28,8 @@ const handlers = new Map<
   (data: DataOf<MessageSchema[MessageId]>, sender: MessageSender) => unknown
 >();
 
+let initialized = false;
+
 // Register a handler for a message. Call this before initMessaging().
 export function onMessage<Key extends MessageId>(
   messageId: Key,
@@ -45,8 +47,11 @@ export function onMessage<Key extends MessageId>(
   );
 }
 
-// Wire up chrome.runtime.onMessage. Call once per context that needs to receive messages.
+// Wire up chrome.runtime.onMessage. No-op if called more than once.
 export function initMessaging(): void {
+  if (initialized) return;
+  initialized = true;
+
   chrome.runtime.onMessage.addListener(
     (
       message: unknown,

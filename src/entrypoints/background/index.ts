@@ -11,9 +11,12 @@ declare module "../../messaging" {
 
 onMessage("ping", () => ({ pong: true }))
 
-onMessage("get-tab-info", async ({ tabId }) => {
-  const tab = await chrome.tabs.get(tabId)
-  return { url: tab.url ?? "", title: tab.title ?? "" }
-})
+onMessage("get-tab-info", ({ tabId }) =>
+  new Promise((resolve) =>
+    chrome.tabs.get(tabId, (tab) =>
+      resolve({ url: tab.url ?? "", title: tab.title ?? "" }),
+    ),
+  ),
+)
 
 initMessaging()
