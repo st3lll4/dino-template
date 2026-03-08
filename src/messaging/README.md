@@ -8,10 +8,12 @@ Typed, bidirectional message passing between extension contexts (background, pop
 
 **1. Declare your messages** (in `background/index.ts`):
 
-```typescript
-import type { ProtocolWithReturn } from "../messaging";
+> The import specifier below (`"../../messaging"`) is relative to `src/entrypoints/*/`. Adjust the path if your file lives elsewhere under `src/`.
 
-declare module "../messaging" {
+```typescript
+import type { ProtocolWithReturn } from "../../messaging";
+
+declare module "../../messaging" {
   interface MessageSchema {
     ping: ProtocolWithReturn<void, { pong: true }>;
     "get-tab-info": ProtocolWithReturn<
@@ -25,7 +27,7 @@ declare module "../messaging" {
 **2. Register handlers** (still in `background/index.ts`):
 
 ```typescript
-import { onMessage, initMessaging } from "../messaging";
+import { onMessage, initMessaging } from "../../messaging";
 
 onMessage("ping", () => ({ pong: true }));
 
@@ -40,7 +42,7 @@ initMessaging();
 **3. Call from popup or content**:
 
 ```typescript
-import { sendMessage } from "../messaging";
+import { sendMessage } from "../../messaging";
 
 const result = await sendMessage("ping", undefined);
 // result is: { pong: true }
@@ -52,7 +54,7 @@ const info = await sendMessage("get-tab-info", { tabId: 42 });
 **4. Send from background to a content script**:
 
 ```typescript
-import { sendToTab } from "../messaging";
+import { sendToTab } from "../../messaging";
 
 await sendToTab(tabId, "ping", undefined);
 ```
@@ -97,7 +99,7 @@ Wires up `chrome.runtime.onMessage`. Call once per context that needs to receive
 The schema is a single `interface MessageSchema {}` that anyone can extend:
 
 ```typescript
-declare module "../messaging" {
+declare module "../../messaging" {
   interface MessageSchema {
     "my-message": ProtocolWithReturn<RequestType, ResponseType>;
   }
@@ -260,4 +262,4 @@ src/messaging/
   README.md  — this file
 ```
 
-Everything exported from `index.ts` is the public surface. `types.ts` is internal — import from `"../messaging"`, not directly from `"../messaging/types"`.
+Everything exported from `index.ts` is the public surface. `types.ts` is internal — import from `"../../messaging"`, not directly from `"../../messaging/types"`.
