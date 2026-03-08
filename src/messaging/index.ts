@@ -8,7 +8,12 @@ import type {
   ReturnOf,
 } from "./types";
 
-export type { ProtocolWithReturn, MessageSchema, MessageId, MessageSender } from "./types";
+export type {
+  ProtocolWithReturn,
+  MessageSchema,
+  MessageId,
+  MessageSender,
+} from "./types";
 
 function isRequestEnvelope(msg: unknown): msg is RequestEnvelope<MessageId> {
   return (
@@ -26,13 +31,21 @@ const handlers = new Map<
 // Register a handler for a message. Call this before initMessaging().
 export function onMessage<Key extends MessageId>(
   messageId: Key,
-  handler: (data: DataOf<MessageSchema[Key]>, sender: MessageSender) => ReturnOf<MessageSchema[Key]> | Promise<ReturnOf<MessageSchema[Key]>>,
+  handler: (
+    data: DataOf<MessageSchema[Key]>,
+    sender: MessageSender,
+  ) => ReturnOf<MessageSchema[Key]> | Promise<ReturnOf<MessageSchema[Key]>>,
 ): void {
-  handlers.set(messageId, handler as (data: DataOf<MessageSchema[MessageId]>, sender: MessageSender) => unknown);
+  handlers.set(
+    messageId,
+    handler as (
+      data: DataOf<MessageSchema[MessageId]>,
+      sender: MessageSender,
+    ) => unknown,
+  );
 }
 
-// Wire up chrome.runtime.onMessage. Call once at the top of background/index.ts
-// and content/index.ts. Returns true to keep the channel open for async handlers.
+// Wire up chrome.runtime.onMessage. Call once per context that needs to receive messages.
 export function initMessaging(): void {
   chrome.runtime.onMessage.addListener(
     (
@@ -45,7 +58,10 @@ export function initMessaging(): void {
       const handler = handlers.get(message.messageId);
 
       if (!handler) {
-        sendResponse({ ok: false, error: `No handler for "${String(message.messageId)}"` });
+        sendResponse({
+          ok: false,
+          error: `No handler for "${String(message.messageId)}"`,
+        });
         return false;
       }
 
@@ -63,15 +79,16 @@ export function initMessaging(): void {
   );
 }
 
-// Send a message to background from any context (popup, content, sidepanel).
-export function sendMessage<Key extends MessageId>(
+function sendVia<Key extends MessageId>(
+  send: (
+    envelope: RequestEnvelope<Key>,
+    cb: (r: ResponseEnvelope) => void,
+  ) => void,
   messageId: Key,
   data: DataOf<MessageSchema[Key]>,
 ): Promise<ReturnOf<MessageSchema[Key]>> {
   return new Promise((resolve, reject) => {
-    const envelope: RequestEnvelope<Key> = { __bridge: true, messageId, data };
-
-    chrome.runtime.sendMessage(envelope, (response: ResponseEnvelope) => {
+    send({ __bridge: true, messageId, data }, (response) => {
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message));
         return;
@@ -85,25 +102,20 @@ export function sendMessage<Key extends MessageId>(
   });
 }
 
-// Send a message from background to a specific tab's content script.
-export function sendToTab<Key extends MessageId>(
+// Send a message to the background from any context (popup, content, sidepanel).
+export const sendMessage = <Key extends MessageId>(
+  messageId: Key,
+  data: DataOf<MessageSchema[Key]>,
+) => sendVia((env, cb) => chrome.runtime.sendMessage(env, cb), messageId, data);
+
+// Send a message from the background to a specific tab's content script.
+export const sendToTab = <Key extends MessageId>(
   tabId: number,
   messageId: Key,
   data: DataOf<MessageSchema[Key]>,
-): Promise<ReturnOf<MessageSchema[Key]>> {
-  return new Promise((resolve, reject) => {
-    const envelope: RequestEnvelope<Key> = { __bridge: true, messageId, data };
-
-    chrome.tabs.sendMessage(tabId, envelope, (response: ResponseEnvelope) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      if (!response.ok) {
-        reject(new Error(response.error));
-        return;
-      }
-      resolve(response.result as ReturnOf<MessageSchema[Key]>);
-    });
-  });
-}
+) =>
+  sendVia(
+    (env, cb) => chrome.tabs.sendMessage(tabId, env, cb),
+    messageId,
+    data,
+  );
