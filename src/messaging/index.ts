@@ -70,7 +70,8 @@ export function initMessaging(): void {
         return false;
       }
 
-      Promise.resolve(handler(message.data, sender))
+      Promise.resolve()
+        .then(() => handler(message.data, sender))
         .then((result) => sendResponse({ ok: true, result }))
         .catch((err: unknown) =>
           sendResponse({
