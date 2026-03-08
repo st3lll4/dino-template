@@ -156,22 +156,22 @@ If we wrote `MessageId` directly instead of `Key extends MessageId`, TypeScript 
 
 With `Key extends MessageId`, TypeScript infers the exact string literal you passed (e.g. `"ping"`) and looks up only `MessageSchema["ping"]`. The return type narrows to exactly `{ pong: true }`.
 
-### The `RequestEnvelope` and `__bridge` marker
+### The `MessageRequest` and `__bridge` marker
 
-`chrome.runtime.onMessage` receives every message sent within the extension, including messages from other libraries or the extension's own internal Chrome events. To avoid accidentally handling something we did not send, every message we send is wrapped in a `RequestEnvelope`:
+`chrome.runtime.onMessage` receives every message sent within the extension, including messages from other libraries or the extension's own internal Chrome events. To avoid accidentally handling something we did not send, every message we send is wrapped in a `MessageRequest`:
 
 ```typescript
-export type RequestEnvelope<Key extends MessageId> = {
+export type MessageRequest<Key extends MessageId> = {
   __bridge: true;
   messageId: Key;
   data: DataOf<MessageSchema[Key]>;
 };
 ```
 
-The `__bridge: true` marker is checked by `isRequestEnvelope()` before we do anything with the message:
+The `__bridge: true` marker is checked by `isMessageRequest()` before we do anything with the message:
 
 ```typescript
-function isRequestEnvelope(msg: unknown): msg is RequestEnvelope<MessageId> {
+function isMessageRequest(msg: unknown): msg is MessageRequest<MessageId> {
   return (
     typeof msg === "object" &&
     msg !== null &&
@@ -180,16 +180,16 @@ function isRequestEnvelope(msg: unknown): msg is RequestEnvelope<MessageId> {
 }
 ```
 
-This is a type guard. If the check passes, TypeScript narrows the type of `msg` from `unknown` to `RequestEnvelope<MessageId>`, so we can safely access `.messageId` and `.data`.
+This is a type guard. If the check passes, TypeScript narrows the type of `msg` from `unknown` to `MessageRequest<MessageId>`, so we can safely access `.messageId` and `.data`.
 
-### `ResponseEnvelope` — explicit ok/error instead of throwing
+### `MessageResponse` — explicit ok/error instead of throwing
 
 When a handler runs and the response comes back, it arrives as a plain `unknown` value. There is no way to receive a thrown exception across the Chrome messaging boundary — it would just become `undefined`.
 
-Instead, every response is wrapped in a `ResponseEnvelope`:
+Instead, every response is wrapped in a `MessageResponse`:
 
 ```typescript
-export type ResponseEnvelope =
+export type MessageResponse =
   | { ok: true; result: unknown }
   | { ok: false; error: string };
 ```
@@ -256,7 +256,7 @@ Every handler receives `sender: MessageSender` as its second argument. Useful fi
 ```
 src/messaging/
   index.ts   — public API: sendMessage, onMessage, initMessaging, sendToTab
-  types.ts   — all shared types (ProtocolWithReturn, MessageSchema, envelopes, etc.)
+  types.ts   — all shared types (ProtocolWithReturn, MessageSchema, MessageRequest, MessageResponse, etc.)
   README.md  — this file
 ```
 

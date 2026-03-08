@@ -31,13 +31,13 @@ export type DataOf<T> =
 export type ReturnOf<T> =
   T extends ProtocolWithReturn<unknown, infer Return> ? Return : void;
 
-// Internal envelope — wraps every message so the dispatcher can identify it.
-export type RequestEnvelope<Key extends MessageId> = {
+// Internal — wraps every outgoing message so the dispatcher can identify it.
+export type MessageRequest<Key extends MessageId> = {
   __bridge: true;
   messageId: Key;
   data: DataOf<MessageSchema[Key]>;
 };
 
-export type ResponseEnvelope =
+export type MessageResponse =
   | { ok: true; result: unknown }
   | { ok: false; error: string };

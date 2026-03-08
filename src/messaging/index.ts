@@ -2,8 +2,8 @@ import type {
   MessageId,
   MessageSender,
   MessageSchema,
-  RequestEnvelope,
-  ResponseEnvelope,
+  MessageRequest,
+  MessageResponse,
   DataOf,
   ReturnOf,
 } from "./types";
@@ -15,7 +15,7 @@ export type {
   MessageSender,
 } from "./types";
 
-function isRequestEnvelope(msg: unknown): msg is RequestEnvelope<MessageId> {
+function isMessageRequest(msg: unknown): msg is MessageRequest<MessageId> {
   return (
     typeof msg === "object" &&
     msg !== null &&
@@ -56,9 +56,9 @@ export function initMessaging(): void {
     (
       message: unknown,
       sender: MessageSender,
-      sendResponse: (response: ResponseEnvelope) => void,
+      sendResponse: (response: MessageResponse) => void,
     ) => {
-      if (!isRequestEnvelope(message)) return false;
+      if (!isMessageRequest(message)) return false;
 
       const handler = handlers.get(message.messageId);
 
@@ -87,8 +87,8 @@ export function initMessaging(): void {
 
 function sendVia<Key extends MessageId>(
   send: (
-    envelope: RequestEnvelope<Key>,
-    cb: (r: ResponseEnvelope) => void,
+    envelope: MessageRequest<Key>,
+    cb: (r: MessageResponse) => void,
   ) => void,
   messageId: Key,
   data: DataOf<MessageSchema[Key]>,
