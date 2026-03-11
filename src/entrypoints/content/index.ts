@@ -1,3 +1,3 @@
-import { initMessaging } from "../../messaging"
+import { createMessaging } from "../../messaging"
 
-initMessaging()
+createMessaging().init()

@@ -1,22 +1,16 @@
-import { initMessaging, onMessage } from "../../messaging"
-import type { ProtocolWithReturn } from "../../messaging"
+import { createMessaging } from "../../messaging";
 
-// Add your message types here and they will be available to sendMessage() across all layers
-declare module "../../messaging" {
-  interface MessageSchema {
-    ping: ProtocolWithReturn<void, { pong: true }>
-    "get-tab-info": ProtocolWithReturn<{ tabId: number }, { url: string; title: string }>
-  }
-}
-
-onMessage("ping", () => ({ pong: true }))
-
-onMessage("get-tab-info", ({ tabId }) =>
-  new Promise((resolve) =>
-    chrome.tabs.get(tabId, (tab) =>
-      resolve({ url: tab.url ?? "", title: tab.title ?? "" }),
+export const messaging = createMessaging()
+  .add("ping", (_: void) => ({ pong: true as const }))
+  .add("get-tab-info", ({ tabId }: { tabId: number }) =>
+    new Promise<{ url: string; title: string }>((resolve) =>
+      chrome.tabs.get(tabId, (tab) =>
+        resolve({ url: tab.url ?? "", title: tab.title ?? "" }),
+      ),
     ),
-  ),
-)
+  )
+  .init();
 
-initMessaging()
+export type BackgroundMessaging = typeof messaging;
+
+chrome.runtime.onInstalled.addListener(() => { console.log("Service worker loaded"); });
