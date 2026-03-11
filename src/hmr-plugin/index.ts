@@ -44,7 +44,10 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
 
     // where we read, transform, and write the manifest
     buildStart() {
-      const outDir = resolvedConfig.build.outDir;
+      const outDir = path.resolve(
+        resolvedConfig.root,
+        resolvedConfig.build.outDir,
+      );
 
       // Read the source manifest
       const srcPath = path.resolve(resolvedConfig.root, "manifest.json");
