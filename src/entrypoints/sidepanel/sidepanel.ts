@@ -5,5 +5,5 @@ const { send } = createSender<BackgroundMessaging>();
 
 document.addEventListener("DOMContentLoaded", async () => {
   const title = await send("get-active-tab-title", undefined);
-  console.log("Active tab title:", title);
+  document.getElementById("tab-title")!.textContent = title;
 });
