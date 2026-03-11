@@ -1,3 +1,7 @@
-import { createMessaging } from "../../messaging"
+import { createMessaging } from "../../messaging";
 
-createMessaging().init()
+export const messaging = createMessaging()
+  .add("get-page-title", (_: void) => document.title)
+  .init();
+
+export type ContentMessaging = typeof messaging;
