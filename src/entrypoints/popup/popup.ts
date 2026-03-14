@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("ping")?.addEventListener("click", async () => {
     try {
       const res = await sender.send("ping", undefined);
-      result().textContent = `ping - ${JSON.stringify(res)}`;
+      result().textContent = `Ping OK\n${JSON.stringify(res, null, 2)}`;
     } catch (e) {
       result().textContent = `ping error: ${e}`;
       console.log("error", e);
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("get-title")?.addEventListener("click", async () => {
     try {
       const title = await sender.send("get-active-tab-title", undefined);
-      result().textContent = `page title: "${title}"`;
+      result().textContent = `Active page title\n"${title}"`;
     } catch (e) {
       result().textContent = `error: ${e}`;
       console.log("error", e);
