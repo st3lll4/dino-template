@@ -28,6 +28,3 @@ function getActiveTabId(): Promise<number> {
   });
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-  console.log("Service worker loaded");
-});

@@ -8,11 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // popup - background
   document.getElementById("ping")?.addEventListener("click", async () => {
     try {
-      const res = await send("ping", undefined);
-      console.log("ping response:", res);
+      await send("ping", undefined);
     } catch (e) {
       result().textContent = `ping error: ${e}`;
-      console.error(e);
+      console.log("error", e);
     }
   });
 
@@ -21,10 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const title = await send("get-active-tab-title", undefined);
       result().textContent = `page title: "${title}"`;
-      console.log("get-active-tab-title response:", title);
     } catch (e) {
       result().textContent = `error: ${e}`;
-      console.error(e);
+      console.log("error", e);
     }
   });
 });
