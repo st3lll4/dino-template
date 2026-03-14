@@ -4,7 +4,6 @@ import type { ContentMessaging } from "../content/messaging";
 const { sendToTab } = createSender<ContentMessaging>();
 export const messaging = createMessaging()
   .add("ping", () => ping())
-  .add("get-active-tab-title", async () => getActiveTabTitle())
   .add("get-active-tab-selection", async () => getActiveTabSelection())
   .init();
 
@@ -24,14 +23,6 @@ async function getActiveTab(): Promise<chrome.tabs.Tab> {
     throw new Error("No active tab");
   }
   return tab;
-}
-
-async function getActiveTabTitle(): Promise<string> {
-  const tab = await getActiveTab();
-  if (tab.id == null) {
-    throw new Error("No active tab id");
-  }
-  return tab.title ?? "";
 }
 
 async function getActiveTabSelection(): Promise<string> {
