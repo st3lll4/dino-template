@@ -1,4 +1,3 @@
-// content script runs as classic script; load messaging module dynamically
 (async () => {
   try {
     await import(chrome.runtime.getURL("modules/messaging.js"));
