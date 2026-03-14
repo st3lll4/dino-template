@@ -1,14 +1,15 @@
 import { createSender } from "../../messaging";
 import type { BackgroundMessaging } from "../background";
 
-const { send } = createSender<BackgroundMessaging>();
+const sender = createSender<BackgroundMessaging>();
 const result = () => document.getElementById("result") as HTMLParagraphElement;
 
 document.addEventListener("DOMContentLoaded", () => {
   // popup - background
   document.getElementById("ping")?.addEventListener("click", async () => {
     try {
-      await send("ping", undefined);
+      const res = await sender.send("ping", undefined);
+      result().textContent = `Ping OK\n${JSON.stringify(res, null, 2)}`;
     } catch (e) {
       result().textContent = `ping error: ${e}`;
       console.log("error", e);
@@ -18,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // full round-trip: popup - bg - content - bg - popup
   document.getElementById("get-title")?.addEventListener("click", async () => {
     try {
-      const title = await send("get-active-tab-title", undefined);
-      result().textContent = `page title: "${title}"`;
+      const title = await sender.send("get-active-tab-title", undefined);
+      result().textContent = `Active page title\n"${title}"`;
     } catch (e) {
       result().textContent = `error: ${e}`;
       console.log("error", e);
