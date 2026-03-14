@@ -8,19 +8,16 @@ export const messaging = createMessaging()
     source: "background" as const,
     at: new Date().toISOString(),
   }))
-  .add("get-active-tab-title", async (_: void) => {
-    const tabId = await getActiveTabId();
-    return sendToTab(tabId, "get-page-title", undefined);
-  })
+  .add("get-active-tab-title", async (_: void) => getActiveTabTitle())
   .init();
 
 export type BackgroundMessaging = typeof messaging;
 
-function getActiveTabId(): Promise<number> {
+function getActiveTab(): Promise<chrome.tabs.Tab> {
   return new Promise((resolve, reject) => {
     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-      if (tab?.id != null) {
-        resolve(tab.id);
+      if (tab) {
+        resolve(tab);
       } else {
         reject(new Error("No active tab"));
       }
@@ -28,3 +25,12 @@ function getActiveTabId(): Promise<number> {
   });
 }
 
+async function getActiveTabTitle(): Promise<string> {
+  const tab = await getActiveTab();
+
+  if (tab.id == null) {
+    throw new Error("No active tab id");
+  }
+
+  return sendToTab(tab.id, "get-page-title", undefined);
+}
