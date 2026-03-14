@@ -3,8 +3,8 @@ import type { ContentMessaging } from "../content/messaging";
 
 const { sendToTab } = createSender<ContentMessaging>();
 export const messaging = createMessaging()
-  .add("ping", (_: void) => ping())
-  .add("get-active-tab-title", async (_: void) => getActiveTabTitle())
+  .add("ping", () => ping())
+  .add("get-active-tab-title", async () => getActiveTabTitle())
   .init();
 
 export type BackgroundMessaging = typeof messaging;
