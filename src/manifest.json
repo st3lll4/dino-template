@@ -16,6 +16,12 @@
       "js": ["content.js"]
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["modules/*.js", "index.js", "modulepreload-polyfill.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "side_panel": {
     "default_path": "entrypoints/sidepanel/sidepanel.html"
   }

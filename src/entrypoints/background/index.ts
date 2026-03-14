@@ -1,5 +1,5 @@
 import { createMessaging, createSender } from "../../messaging";
-import type { ContentMessaging } from "../content";
+import type { ContentMessaging } from "../content/messaging";
 
 const { sendToTab } = createSender<ContentMessaging>();
 export const messaging = createMessaging()

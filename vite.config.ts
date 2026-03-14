@@ -9,6 +9,7 @@ export default defineConfig({
       input: {
         background: "src/entrypoints/background/index.ts",
         content: "src/entrypoints/content/index.ts",
+        "modules/messaging": "src/entrypoints/content/messaging.ts",
         popup: "src/entrypoints/popup/popup.html",
         sidepanel: "src/entrypoints/sidepanel/sidepanel.html",
       },
