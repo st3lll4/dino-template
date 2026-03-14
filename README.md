@@ -1,7 +1,7 @@
 # ✨ Extension template
 
 Your cross-browser extension starter. 
-No refreshing manually like it's 2012. Supports Chrome MV3, Firefox MV2, and Firefox MV3 because we don't discriminate. Has HMR! Messaging and type safety on the way.
+No refreshing manually like it's 2012. Supports Chrome MV3, Firefox MV2, and Firefox MV3 because we don't discriminate. Has HMR and end to end messaging! Type safe queries on the way.
 
 ## 💅 Setup
 

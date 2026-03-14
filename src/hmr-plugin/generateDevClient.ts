@@ -14,7 +14,7 @@ export function generateDevClient(wsPort: number): string {
     }
 
     ws.addEventListener('open', function() {
-      console.debug('[ext-hmr] background connected to dev server');
+      console.debug('[hmr] background connected to dev server');
       clearTimeout(reconnectTimer);
       ws.send(JSON.stringify({ event: 'ext:ready' }));
     });
@@ -24,12 +24,12 @@ export function generateDevClient(wsPort: number): string {
       try { msg = JSON.parse(e.data); } catch { return; }
 
       if (msg.event === 'background-updated' || msg.event === 'full-reload') {
-        console.debug('[ext-hmr] reloading extension');
+        console.debug('[hmr] reloading extension');
         chrome.runtime.reload();
       }
 
       if (msg.event === 'content-updated') {
-        console.debug('[ext-hmr] re-injecting content script');
+        console.debug('[hmr] re-injecting content script');
         reloadContentScript(msg.scriptId);
       }
     });

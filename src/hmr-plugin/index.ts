@@ -74,7 +74,7 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
         JSON.stringify(transformed, null, 2),
       );
 
-      console.log(`[ext-hmr] manifest.json written for ${browser}`);
+      console.log(`[hmr] manifest.json written for ${browser}`);
     },
   };
 
@@ -110,19 +110,19 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
             return;
           }
           if (msg.event === "ext:ready") {
-            console.log(`[ext-hmr] extension ready`);
+            console.log(`[hmr] extension ready`);
           }
           if (msg.event === "ext:error") {
-            console.error(`[ext-hmr] extension error: ${msg.message}`);
+            console.error(`[hmr] error: ${msg.message}`);
           }
         });
       });
 
       wss.on("error", (err) => {
-        console.error(`[ext-hmr] WebSocket server error: ${err.message}`);
+        console.error(`[hmr] WebSocket server error: ${err.message}`);
       });
 
-      console.log(`[ext-hmr] WS server started on ws://localhost:${wsPort}`);
+      console.log(`[hmr] WS server started on ws://localhost:${wsPort}`);
 
       const outDir = resolvedConfig.build.outDir;
 
