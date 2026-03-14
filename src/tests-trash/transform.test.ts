@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { transformManifest } from "../helpers/transformManifest";
-import type { SourceManifest } from "../types/hmr-plugin-types";
+import { transformManifest } from "../hmr-plugin/transformManifest";
+import type { SourceManifest } from "../hmr-plugin/types";
 
 const source: SourceManifest = {
   manifest_version: 3,

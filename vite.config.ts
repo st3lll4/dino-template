@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { hmrPlugin } from "./src/plugins/hmr-plugins";
+import { hmrPlugin } from "./src/hmr-plugin";
 
 export default defineConfig({
   root: "src",
