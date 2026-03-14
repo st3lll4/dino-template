@@ -18,6 +18,7 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
     options.browser ?? (process.env.BROWSER as TargetBrowser) ?? "chrome-mv3";
   const wsPort = options.wsPort ?? 5174;
   const devPort = options.devPort ?? 5173;
+  const hmrEnabled = process.env.EXT_HMR === "1";
 
   // placeholders so can call them
   let resolvedConfig: ResolvedConfig;
@@ -124,7 +125,10 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
 
       console.log(`[hmr] WS server started on ws://localhost:${wsPort}`);
 
-      const outDir = resolvedConfig.build.outDir;
+      const outDir = path.resolve(
+        resolvedConfig.root,
+        resolvedConfig.build.outDir,
+      );
 
       const backgroundOut = path.join(outDir, "background.js");
       const contentOut = path.join(outDir, "content.js");
@@ -151,7 +155,7 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
     name: "hmr:dev-client",
 
     renderChunk(code, chunk) {
-      if (resolvedConfig.command !== "serve") return null;
+      if (!hmrEnabled) return null;
 
       if (chunk.fileName === "background.js") {
         const client = generateDevClient(wsPort);

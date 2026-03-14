@@ -17,13 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // full round-trip: popup - bg - content - bg - popup
-  document.getElementById("get-title")?.addEventListener("click", async () => {
-    try {
-      const title = await sender.send("get-active-tab-title", undefined);
-      result().textContent = `Active page title\n"${title}"`;
-    } catch (e) {
-      result().textContent = `error: ${e}`;
-      console.log("error", e);
-    }
-  });
+  document
+    .getElementById("get-selection")
+    ?.addEventListener("click", async () => {
+      try {
+        const text = await sender.send("get-active-tab-selection", undefined);
+        result().textContent = text
+          ? `Selected text\n"${text}"`
+          : "Selected text\n(none)";
+      } catch (e) {
+        result().textContent = `error: ${e}`;
+        console.log("error", e);
+      }
+    });
 });

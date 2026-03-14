@@ -5,6 +5,7 @@ const { sendToTab } = createSender<ContentMessaging>();
 export const messaging = createMessaging()
   .add("ping", () => ping())
   .add("get-active-tab-title", async () => getActiveTabTitle())
+  .add("get-active-tab-selection", async () => getActiveTabSelection())
   .init();
 
 export type BackgroundMessaging = typeof messaging;
@@ -18,7 +19,7 @@ function ping() {
 }
 
 async function getActiveTab(): Promise<chrome.tabs.Tab> {
-  const [ tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) {
     throw new Error("No active tab");
   }
@@ -30,5 +31,13 @@ async function getActiveTabTitle(): Promise<string> {
   if (tab.id == null) {
     throw new Error("No active tab id");
   }
-  return sendToTab(tab.id, "get-page-title", undefined);
+  return tab.title ?? "";
+}
+
+async function getActiveTabSelection(): Promise<string> {
+  const tab = await getActiveTab();
+  if (tab.id == null) {
+    throw new Error("No active tab id");
+  }
+  return sendToTab(tab.id, "get-selected-text", undefined);
 }

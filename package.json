@@ -5,18 +5,16 @@
   "main": "index.ts",
   "scripts": {
     "dev": "npm-run-all --parallel dev:build dev:serve",
-    "dev:build": "cross-env BROWSER=chrome-mv3 vite build --watch",
-    "dev:serve": "cross-env BROWSER=chrome-mv3 vite",
+    "dev:build": "cross-env BROWSER=chrome-mv3 EXT_HMR=1 vite build --watch",
+    "dev:serve": "cross-env BROWSER=chrome-mv3 EXT_HMR=1 vite",
     "dev:firefox": "npm-run-all --parallel dev:build:firefox dev:serve:firefox",
-    "dev:build:firefox": "cross-env BROWSER=firefox-mv2 vite build --watch",
-    "dev:serve:firefox": "cross-env BROWSER=firefox-mv2 vite",
+    "dev:build:firefox": "cross-env BROWSER=firefox-mv2 EXT_HMR=1 vite build --watch",
+    "dev:serve:firefox": "cross-env BROWSER=firefox-mv2 EXT_HMR=1 vite",
     "build": "cross-env BROWSER=chrome-mv3 vite build",
     "build:firefox": "cross-env BROWSER=firefox-mv2 vite build",
     "build:firefox-mv3": "cross-env BROWSER=firefox-mv3 vite build",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "Stella Tukia",
