@@ -3,7 +3,11 @@ import type { ContentMessaging } from "../content/messaging";
 
 const { sendToTab } = createSender<ContentMessaging>();
 export const messaging = createMessaging()
-  .add("ping", (_: void) => ({ pong: true as const }))
+  .add("ping", (_: void) => ({
+    pong: true as const,
+    source: "background" as const,
+    at: new Date().toISOString(),
+  }))
   .add("get-active-tab-title", async (_: void) => {
     const tabId = await getActiveTabId();
     return sendToTab(tabId, "get-page-title", undefined);
