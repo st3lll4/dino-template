@@ -9,20 +9,20 @@ export const messaging = createMessaging()
 
 export type BackgroundMessaging = typeof messaging;
 
-function ping() {
-  return {
-    pong: true as const,
-    source: "background" as const,
-    at: new Date().toISOString(),
-  };
-}
-
 async function getActiveTab(): Promise<chrome.tabs.Tab> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) {
     throw new Error("No active tab");
   }
   return tab;
+}
+
+function ping() {
+  return {
+    pong: true as const,
+    source: "background" as const,
+    at: new Date().toISOString(),
+  };
 }
 
 async function getActiveTabSelection(): Promise<string> {

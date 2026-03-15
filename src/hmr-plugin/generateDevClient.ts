@@ -50,6 +50,10 @@ export function generateDevClient(wsPort: number): string {
         await chrome.scripting.unregisterContentScripts({ ids: [scriptId] });
       }
 
+      console.log("1111 GETS HERE")
+      // issue: 
+      // content script gets removed when it updates. no new ontent script gets injected. tab doesnt reload
+
       await chrome.scripting.registerContentScripts([{
         id: scriptId,
         js: ['content.js'],
@@ -57,6 +61,8 @@ export function generateDevClient(wsPort: number): string {
         runAt: 'document_idle',
       }]);
 
+      console.log("22222 GETS HERE")
+      
       const tabs = await chrome.tabs.query({});
       for (const tab of tabs) {
         if (
@@ -69,7 +75,8 @@ export function generateDevClient(wsPort: number): string {
         }
       }
     } catch(e) {
-      ws.send(JSON.stringify({ event: 'ext:error', message: String(e) }));
+      console.error('[hmr] failed to reload content script', e);
+      // ws.send(JSON.stringify({ event: 'ext:error', message: String(e) }));
     }
   }
 
