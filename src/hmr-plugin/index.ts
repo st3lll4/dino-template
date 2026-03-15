@@ -24,6 +24,8 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
   let resolvedConfig: ResolvedConfig;
   let wss: WebSocketServer | null = null;
   const clients = new Set<WebSocket>();
+  let pendingEvent: "none" | "background" | "content" = "none";
+  let flushTimer: NodeJS.Timeout | null = null;
 
   // send messages from server to extension
   function broadcast(msg: ServerToExtensionEvent) {
@@ -33,6 +35,31 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
         ws.send(raw);
       }
     });
+  }
+
+  function scheduleBroadcast(type: "background" | "content") {
+    if (type === "content") {
+      pendingEvent = "content";
+    } else if (pendingEvent === "none") {
+      pendingEvent = "background";
+    }
+
+    if (flushTimer) {
+      clearTimeout(flushTimer);
+    }
+
+    flushTimer = setTimeout(() => {
+      if (pendingEvent === "content") {
+        console.log(`[hmr] content script rebuilt, reloading tabs`);
+        broadcast({ event: "content-updated", scriptId: "content-main" });
+      } else if (pendingEvent === "background") {
+        console.log(`[hmr] background rebuilt, reloading extension`);
+        broadcast({ event: "background-updated" });
+      }
+
+      pendingEvent = "none";
+      flushTimer = null;
+    }, 150);
   }
 
   const manifestPlugin: Plugin = {
@@ -134,18 +161,20 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
       const contentOut = path.join(outDir, "content.js");
 
       watchFile(backgroundOut, () => {
-        console.log(`[hmr] background rebuilt, reloading extension`);
-        broadcast({ event: "background-updated" });
+        scheduleBroadcast("background");
       });
 
       watchFile(contentOut, () => {
-        console.log(`[hmr] content script rebuilt, re-injecting`);
-        broadcast({ event: "content-updated", scriptId: "content-main" });
+        scheduleBroadcast("content");
       });
     },
 
     // clean up
     closeBundle() {
+      if (flushTimer) {
+        clearTimeout(flushTimer);
+        flushTimer = null;
+      }
       wss?.close();
       wss = null;
     },

@@ -29,8 +29,8 @@ export function generateDevClient(wsPort: number): string {
       }
 
       if (msg.event === 'content-updated') {
-        console.debug('[hmr] re-injecting content script');
-        reloadContentScript(msg.scriptId);
+        console.debug('[hmr] reloading tabs for content script update');
+        reloadTabs();
       }
     });
 
@@ -43,40 +43,29 @@ export function generateDevClient(wsPort: number): string {
     reconnectTimer = setTimeout(connect, 1000);
   }
 
-  async function reloadContentScript(scriptId) {
+  async function reloadTabs() {
     try {
-      const existing = await chrome.scripting.getRegisteredContentScripts({ ids: [scriptId] });
-      if (existing.length > 0) {
-        await chrome.scripting.unregisterContentScripts({ ids: [scriptId] });
+      let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+      if (tabs.length === 0) {
+        tabs = await chrome.tabs.query({ active: true });
       }
 
-      console.log("1111 GETS HERE")
-      // issue: 
-      // content script gets removed when it updates. no new ontent script gets injected. tab doesnt reload
+      const reloadJobs = [];
 
-      await chrome.scripting.registerContentScripts([{
-        id: scriptId,
-        js: ['content.js'],
-        matches: ['<all_urls>'],
-        runAt: 'document_idle',
-      }]);
-
-      console.log("22222 GETS HERE")
-      
-      const tabs = await chrome.tabs.query({});
       for (const tab of tabs) {
-        if (
-          tab.id &&
-          tab.url &&
-          !tab.url.startsWith('chrome://') &&
-          !tab.url.startsWith('about:')
-        ) {
-          chrome.tabs.reload(tab.id).catch(() => {});
-        }
+        if (!tab.id) continue;
+        if (tab.url && (tab.url.startsWith('chrome:') || tab.url.startsWith('about:'))) continue;
+        reloadJobs.push(chrome.tabs.reload(tab.id, { bypassCache: true }));
+      }
+
+      await Promise.allSettled(reloadJobs);
+
+      if (reloadJobs.length > 0) {
+        console.debug('[hmr] requested active-tab refresh for ' + reloadJobs.length + ' tab(s)');
       }
     } catch(e) {
-      console.error('[hmr] failed to reload content script', e);
-      // ws.send(JSON.stringify({ event: 'ext:error', message: String(e) }));
+      console.error('[hmr] failed to reload tabs after content update', e);
+      ws.send(JSON.stringify({ event: 'ext:error', message: String(e) }));
     }
   }
 
