@@ -82,7 +82,7 @@ class MessagingBuilder<Schema extends HandlerMap> {
           }),
         );
 
-      return true; // keep channel open for async response
+      return true; 
     });
 
     return this.schema;

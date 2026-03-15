@@ -18,11 +18,14 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
     options.browser ?? (process.env.BROWSER as TargetBrowser) ?? "chrome-mv3";
   const wsPort = options.wsPort ?? 5174;
   const devPort = options.devPort ?? 5173;
+  const hmrEnabled = process.env.EXT_HMR === "1";
 
   // placeholders so can call them
   let resolvedConfig: ResolvedConfig;
   let wss: WebSocketServer | null = null;
   const clients = new Set<WebSocket>();
+  let pendingEvent: "none" | "background" | "content" = "none";
+  let flushTimer: NodeJS.Timeout | null = null;
 
   // send messages from server to extension
   function broadcast(msg: ServerToExtensionEvent) {
@@ -32,6 +35,31 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
         ws.send(raw);
       }
     });
+  }
+
+  function scheduleBroadcast(type: "background" | "content") {
+    if (type === "content") {
+      pendingEvent = "content";
+    } else if (pendingEvent === "none") {
+      pendingEvent = "background";
+    }
+
+    if (flushTimer) {
+      clearTimeout(flushTimer);
+    }
+
+    flushTimer = setTimeout(() => {
+      if (pendingEvent === "content") {
+        console.log(`[hmr] content script rebuilt, reloading tabs`);
+        broadcast({ event: "content-updated", scriptId: "content-main" });
+      } else if (pendingEvent === "background") {
+        console.log(`[hmr] background rebuilt, reloading extension`);
+        broadcast({ event: "background-updated" });
+      }
+
+      pendingEvent = "none";
+      flushTimer = null;
+    }, 150);
   }
 
   const manifestPlugin: Plugin = {
@@ -124,24 +152,29 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
 
       console.log(`[hmr] WS server started on ws://localhost:${wsPort}`);
 
-      const outDir = resolvedConfig.build.outDir;
+      const outDir = path.resolve(
+        resolvedConfig.root,
+        resolvedConfig.build.outDir,
+      );
 
       const backgroundOut = path.join(outDir, "background.js");
       const contentOut = path.join(outDir, "content.js");
 
       watchFile(backgroundOut, () => {
-        console.log(`[hmr] background rebuilt, reloading extension`);
-        broadcast({ event: "background-updated" });
+        scheduleBroadcast("background");
       });
 
       watchFile(contentOut, () => {
-        console.log(`[hmr] content script rebuilt, re-injecting`);
-        broadcast({ event: "content-updated", scriptId: "content-main" });
+        scheduleBroadcast("content");
       });
     },
 
     // clean up
     closeBundle() {
+      if (flushTimer) {
+        clearTimeout(flushTimer);
+        flushTimer = null;
+      }
       wss?.close();
       wss = null;
     },
@@ -151,7 +184,7 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
     name: "hmr:dev-client",
 
     renderChunk(code, chunk) {
-      if (resolvedConfig.command !== "serve") return null;
+      if (!hmrEnabled) return null;
 
       if (chunk.fileName === "background.js") {
         const client = generateDevClient(wsPort);
