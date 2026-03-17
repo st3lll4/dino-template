@@ -24,8 +24,8 @@ export function generateDevClient(wsPort: number): string {
       try { msg = JSON.parse(e.data); } catch { return; }
 
       if (msg.event === 'background-updated' || msg.event === 'full-reload') {
-        console.debug('[hmr] reloading extension');
-        chrome.runtime.reload();
+        console.debug('[hmr] background updated, reloading tabs then extension');
+        reloadTabsThenExtension();
       }
 
       if (msg.event === 'content-updated') {
@@ -36,6 +36,18 @@ export function generateDevClient(wsPort: number): string {
 
     ws.addEventListener('close', scheduleReconnect);
     ws.addEventListener('error', scheduleReconnect);
+  }
+
+  async function reloadTabsThenExtension() {
+    try {
+      await reloadTabs();
+    } catch {
+      // ignore and continue to extension reload
+    }
+
+    setTimeout(function() {
+      chrome.runtime.reload();
+    }, 150);
   }
 
   function scheduleReconnect() {
@@ -65,7 +77,9 @@ export function generateDevClient(wsPort: number): string {
       }
     } catch(e) {
       console.error('[hmr] failed to reload tabs after content update', e);
-      ws.send(JSON.stringify({ event: 'ext:error', message: String(e) }));
+      if (ws && ws.readyState === 1) {
+        ws.send(JSON.stringify({ event: 'ext:error', message: String(e) }));
+      }
     }
   }
 

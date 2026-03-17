@@ -38,10 +38,10 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
   }
 
   function scheduleBroadcast(type: "background" | "content") {
-    if (type === "content") {
-      pendingEvent = "content";
-    } else if (pendingEvent === "none") {
+    if (type === "background") {
       pendingEvent = "background";
+    } else if (pendingEvent === "none") {
+      pendingEvent = "content";
     }
 
     if (flushTimer) {
@@ -159,12 +159,17 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
 
       const backgroundOut = path.join(outDir, "background.js");
       const contentOut = path.join(outDir, "content.js");
+      const contentMessagingOut = path.join(outDir, "modules", "messaging.js");
 
       watchFile(backgroundOut, () => {
         scheduleBroadcast("background");
       });
 
       watchFile(contentOut, () => {
+        scheduleBroadcast("content");
+      });
+
+      watchFile(contentMessagingOut, () => {
         scheduleBroadcast("content");
       });
     },
