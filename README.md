@@ -43,16 +43,6 @@ npm run build:firefox-mv3
 
 Output lands in `dist/`. I'll setup ci/cd later. It's giving automation, queen.
 
-## Tests
-
-```bash
-# run once and go
-npm test
-
-# stay and watch (very dedicated)
-npm run test:watch
-```
-
 ## HMR 101
 
 | Layer             | What happens                                                              |
