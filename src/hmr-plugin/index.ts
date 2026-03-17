@@ -51,7 +51,7 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
     flushTimer = setTimeout(() => {
       if (pendingEvent === "content") {
         console.log(`[hmr] content script rebuilt, reloading tabs`);
-        broadcast({ event: "content-updated", scriptId: "content-main" });
+        broadcast({ event: "content-updated" });
       } else if (pendingEvent === "background") {
         console.log(`[hmr] background rebuilt, reloading extension`);
         broadcast({ event: "background-updated" });

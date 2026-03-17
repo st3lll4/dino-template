@@ -8,8 +8,7 @@ export type HmrOptions = {
 
 export type ServerToExtensionEvent =
   | { event: "background-updated" }
-  | { event: "content-updated"; scriptId: string }
-  | { event: "full-reload" };
+  | { event: "content-updated" };
 
 export type ExtensionToServerEvent =
   | { event: "ext:ready" }
