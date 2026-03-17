@@ -23,7 +23,7 @@ export function generateDevClient(wsPort: number): string {
       let msg;
       try { msg = JSON.parse(e.data); } catch { return; }
 
-      if (msg.event === 'background-updated' || msg.event === 'full-reload') {
+      if (msg.event === 'background-updated') {
         console.debug('[hmr] background updated, reloading tabs then extension');
         reloadTabsThenExtension();
       }
