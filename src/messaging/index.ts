@@ -58,7 +58,7 @@ class MessagingBuilder<Schema extends HandlerMap> {
 
   /* Start listening for messages. Returns the schema type for `typeof messaging` */
   init(): Schema {
-    browser.runtime.onMessage.addListener((msg, sender) => {
+    browser.runtime.onMessage.addListener((msg: unknown, sender: browser.Runtime.MessageSender) => {
       if (!isMessageRequest(msg)) return;
 
       const handler = this.handlers.get(msg.messageId);

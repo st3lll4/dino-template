@@ -35,7 +35,7 @@ delete m.side_panel;
     if (!m.browser_specific_settings?.gecko?.id) {
       m.browser_specific_settings = {
         gecko: {
-          id: "your-extension@example.com",
+          id: "extension@example.com",
           strict_min_version: "109.0",
         },
       };
