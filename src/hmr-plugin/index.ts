@@ -15,7 +15,7 @@ import { generateDevClient } from "./generateDevClient";
 
 export function hmrPlugin(options: HmrOptions): Plugin[] {
   const browser: TargetBrowser =
-    options.browser ?? (process.env.BROWSER as TargetBrowser) ?? "chrome-mv3";
+    options.browser ?? (process.env.BROWSER as TargetBrowser) ?? "chrome";
   const wsPort = options.wsPort ?? 5174;
   const devPort = options.devPort ?? 5173;
   const hmrEnabled = process.env.EXT_HMR === "1";
@@ -93,7 +93,7 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
       }
 
       // transform
-      const transformed = transformManifest(src, browser);
+      const transformed = transformManifest(src, browser, hmrEnabled, wsPort);
 
       // Make sure the output directory exists and write to it
       fs.mkdirSync(outDir, { recursive: true });
@@ -101,6 +101,16 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
         path.join(outDir, "manifest.json"),
         JSON.stringify(transformed, null, 2),
       );
+
+      // Firefox uses a background page instead of a service worker
+      if (browser === "firefox") {
+        const bgScript = src.background?.service_worker ?? "background.js";
+        fs.writeFileSync(
+          path.join(outDir, "background.html"),
+          `<!doctype html><script type="module" src="${bgScript}"></script>`,
+        );
+        console.log(`[hmr] background.html written for firefox`);
+      }
 
       console.log(`[hmr] manifest.json written for ${browser}`);
     },

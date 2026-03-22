@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import type {
   HandlerMap,
   DataOf,
@@ -18,22 +19,17 @@ function isMessageRequest(msg: unknown): msg is MessageRequest {
 
 type AnyHandler = (
   data: unknown,
-  sender: chrome.runtime.MessageSender,
+  sender: browser.Runtime.MessageSender,
 ) => unknown;
 
-function sendVia<Result>(
-  transport: (req: MessageRequest, cb: (res: MessageResponse) => void) => void,
+async function sendVia<Result>(
+  send: (req: MessageRequest) => Promise<MessageResponse>,
   messageId: string,
   data: unknown,
 ): Promise<Result> {
-  return new Promise((resolve, reject) => {
-    transport({ __bridge: true, messageId, data }, (res) => {
-      if (chrome.runtime.lastError)
-        return reject(new Error(chrome.runtime.lastError.message));
-      if (!res.ok) return reject(new Error(res.error));
-      resolve(res.result as Result);
-    });
-  });
+  const res = await send({ __bridge: true, messageId, data });
+  if (!res.ok) throw new Error(res.error);
+  return res.result as Result;
 }
 
 class MessagingBuilder<Schema extends HandlerMap> {
@@ -51,7 +47,7 @@ class MessagingBuilder<Schema extends HandlerMap> {
     key: Key,
     handler: (
       data: Data,
-      sender?: chrome.runtime.MessageSender,
+      sender?: browser.Runtime.MessageSender,
     ) => Result | Promise<Result>,
   ) {
     this.handlers.set(key, handler as AnyHandler);
@@ -62,27 +58,22 @@ class MessagingBuilder<Schema extends HandlerMap> {
 
   /* Start listening for messages. Returns the schema type for `typeof messaging` */
   init(): Schema {
-    chrome.runtime.onMessage.addListener((msg, sender, respond) => {
-      if (!isMessageRequest(msg)) return false;
+    browser.runtime.onMessage.addListener((msg, sender) => {
+      if (!isMessageRequest(msg)) return;
 
       const handler = this.handlers.get(msg.messageId);
 
       if (!handler) {
-        respond({ ok: false, error: `No handler for "${msg.messageId}"` });
-        return false;
+        return Promise.resolve({ ok: false, error: `No handler for "${msg.messageId}"` });
       }
 
-      Promise.resolve()
+      return Promise.resolve()
         .then(() => handler(msg.data, sender))
-        .then((result) => respond({ ok: true, result }))
-        .catch((err: unknown) =>
-          respond({
-            ok: false,
-            error: err instanceof Error ? err.message : String(err),
-          }),
-        );
-
-      return true; 
+        .then((result) => ({ ok: true, result }))
+        .catch((err: unknown) => ({
+          ok: false,
+          error: err instanceof Error ? err.message : String(err),
+        }));
     });
 
     return this.schema;
@@ -104,7 +95,7 @@ export function createSender<Schema extends HandlerMap>() {
       data: DataOf<Schema, Key>,
     ) {
       return sendVia<ReturnOf<Schema, Key>>(
-        (req, cb) => chrome.runtime.sendMessage(req, cb),
+        (req) => browser.runtime.sendMessage(req) as Promise<MessageResponse>,
         key,
         data,
       );
@@ -116,7 +107,7 @@ export function createSender<Schema extends HandlerMap>() {
       data: DataOf<Schema, Key>,
     ) {
       return sendVia<ReturnOf<Schema, Key>>(
-        (req, cb) => chrome.tabs.sendMessage(tabId, req, cb),
+        (req) => browser.tabs.sendMessage(tabId, req) as Promise<MessageResponse>,
         key,
         data,
       );

@@ -5,14 +5,13 @@
   "main": "index.ts",
   "scripts": {
     "dev": "npm-run-all --parallel dev:build dev:serve",
-    "dev:build": "cross-env BROWSER=chrome-mv3 EXT_HMR=1 vite build --watch",
-    "dev:serve": "cross-env BROWSER=chrome-mv3 EXT_HMR=1 vite",
+    "dev:build": "cross-env BROWSER=chrome EXT_HMR=1 vite build --watch",
+    "dev:serve": "cross-env BROWSER=chrome EXT_HMR=1 vite",
     "dev:firefox": "npm-run-all --parallel dev:build:firefox dev:serve:firefox",
-    "dev:build:firefox": "cross-env BROWSER=firefox-mv2 EXT_HMR=1 vite build --watch",
-    "dev:serve:firefox": "cross-env BROWSER=firefox-mv2 EXT_HMR=1 vite",
-    "build": "cross-env BROWSER=chrome-mv3 vite build",
-    "build:firefox": "cross-env BROWSER=firefox-mv2 vite build",
-    "build:firefox-mv3": "cross-env BROWSER=firefox-mv3 vite build",
+    "dev:build:firefox": "cross-env BROWSER=firefox EXT_HMR=1 vite build --watch",
+    "dev:serve:firefox": "cross-env BROWSER=firefox EXT_HMR=1 vite",
+    "build": "cross-env BROWSER=chrome vite build",
+    "build:firefox": "cross-env BROWSER=firefox vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -24,6 +23,7 @@
     "@eslint/js": "^10.0.1",
     "@types/chrome": "^0.1.37",
     "@types/node": "^25.3.1",
+    "@types/webextension-polyfill": "^0.12.5",
     "@types/ws": "^8.18.1",
     "cross-env": "^10.1.0",
     "eslint": "^10.0.3",
@@ -36,6 +36,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "webextension-polyfill": "^0.12.0",
     "ws": "^8.19.0"
   }
 }

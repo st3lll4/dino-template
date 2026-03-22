@@ -2,6 +2,7 @@ export function generateDevClient(wsPort: number): string {
   return `
 (function() {
   const WS_PORT = ${wsPort};
+  const _browser = typeof browser !== 'undefined' ? browser : chrome;
   let ws;
   let reconnectTimer;
 
@@ -46,7 +47,7 @@ export function generateDevClient(wsPort: number): string {
     }
 
     setTimeout(function() {
-      chrome.runtime.reload();
+      _browser.runtime.reload();
     }, 150);
   }
 
@@ -57,17 +58,17 @@ export function generateDevClient(wsPort: number): string {
 
   async function reloadTabs() {
     try {
-      let tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+      let tabs = await _browser.tabs.query({ active: true, lastFocusedWindow: true });
       if (tabs.length === 0) {
-        tabs = await chrome.tabs.query({ active: true });
+        tabs = await _browser.tabs.query({ active: true });
       }
 
       const reloadJobs = [];
 
       for (const tab of tabs) {
         if (!tab.id) continue;
-        if (tab.url && (tab.url.startsWith('chrome:') || tab.url.startsWith('about:'))) continue;
-        reloadJobs.push(chrome.tabs.reload(tab.id, { bypassCache: true }));
+        if (tab.url && (tab.url.startsWith('chrome:') || tab.url.startsWith('about:') || tab.url.startsWith('moz-extension:') || tab.url.startsWith('safari-extension:') || tab.url.startsWith('safari-web-extension:'))) continue;
+        reloadJobs.push(_browser.tabs.reload(tab.id, { bypassCache: true }));
       }
 
       await Promise.allSettled(reloadJobs);

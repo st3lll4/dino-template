@@ -1,7 +1,7 @@
 # ✨ Extension template
 
 Your cross-browser extension starter.
-No refreshing manually like it's 2012. Supports Chrome MV3, Firefox MV2, and Firefox MV3 because we don't discriminate. Has HMR and end to end messaging! Type safe queries on the way.
+No refreshing manually like it's 2012. Supports Chrome MV3 and Firefox MV3. Safari is supported via the Chrome MV3 build — feed `dist/` to `xcrun safari-web-extension-converter` to generate the Xcode project. Has HMR and end to end messaging! Type safe queries on the way.
 
 ## 💅 Setup
 
@@ -14,10 +14,10 @@ npm install
 Vite watches your files, rebuilds on save, and HMR keeps your extension pages fresh in real time. Iconic.
 
 ```bash
-# Chrome MV3 (the main character)
+# Chrome
 npm run dev
 
-# Firefox MV2 (also valid, we love her)
+# Firefox
 npm run dev:firefox
 ```
 
@@ -31,17 +31,24 @@ Then load your extension from `dist/`:
 When you're ready to go live:
 
 ```bash
-# Chrome MV3
+# Chrome
 npm run build
 
-# Firefox MV2
+# Firefox
 npm run build:firefox
-
-# Firefox MV3
-npm run build:firefox-mv3
 ```
 
 Output lands in `dist/`. I'll setup ci/cd later. It's giving automation, queen.
+
+### Safari
+
+Safari uses the Chrome MV3 build as input. After running `npm run build`, convert it with:
+
+```bash
+xcrun safari-web-extension-converter dist/ --project-location ./safari --app-name "YourExtension"
+```
+
+This generates an Xcode project you can build and distribute via the Mac App Store.
 
 ## Tests
 
@@ -58,7 +65,7 @@ npm run test:watch
 | Layer             | What happens                                                              |
 | ----------------- | ------------------------------------------------------------------------- |
 | Popup / sidepanel | Native Vite HMR via `localhost:5173`                                      |
-| Background script | WebSocket event → reload active tab(s) then `chrome.runtime.reload()`     |
+| Background script | WebSocket event → reload active tab(s) then `browser.runtime.reload()`     |
 | Content scripts   | WebSocket event → reload active tab(s) to re-run content script injection |
 
 WebSocket server runs on port `5174`. Configurable in `vite.config.ts` if you're feeling creative.
