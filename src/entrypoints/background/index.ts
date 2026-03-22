@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import { createMessaging, createSender } from "../../messaging";
 import type { ContentMessaging } from "../content/messaging";
 
@@ -9,8 +10,8 @@ export const messaging = createMessaging()
 
 export type BackgroundMessaging = typeof messaging;
 
-async function getActiveTab(): Promise<chrome.tabs.Tab> {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+async function getActiveTab(): Promise<browser.Tabs.Tab> {
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   if (!tab) {
     throw new Error("No active tab");
   }

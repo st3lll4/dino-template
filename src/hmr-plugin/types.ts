@@ -1,4 +1,4 @@
-export type TargetBrowser = "chrome-mv3" | "firefox-mv2" | "firefox-mv3";
+export type TargetBrowser = "chrome" | "firefox";
 
 export type HmrOptions = {
   browser?: TargetBrowser;
@@ -22,25 +22,25 @@ export type ActionConfig = {
 };
 
 export type SourceManifest = {
-  manifest_version: 2 | 3;
+  manifest_version: 3;
   name: string;
   version: string;
   description?: string;
   icons?: IconMap;
   action?: ActionConfig;
-  browser_action?: ActionConfig;
   options_ui?: { page: string; open_in_tab?: boolean };
   background?: {
     service_worker?: string;
     type?: "module";
     scripts?: string[];
-    persistent?: boolean;
+    page?: string;
   };
   content_scripts?: Array<{
     js: string[];
     matches: string[];
     run_at?: string;
     css?: string[];
+    type?: "module";
   }>;
   permissions?: string[];
   host_permissions?: string[];
