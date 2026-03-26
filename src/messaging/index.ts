@@ -28,7 +28,7 @@ async function sendVia<Result>(
   data: unknown,
 ): Promise<Result> {
   const res = await send({ __bridge: true, messageId, data });
-  if (!res.ok) throw new Error(res.error);
+  if (res.ok === false) throw new Error(res.error);
   return res.result as Result;
 }
 
@@ -42,7 +42,7 @@ class MessagingBuilder<Schema extends HandlerMap> {
     this.handlers = handlers ?? new Map();
   }
 
-  /* Register a handler */
+  // Register a handler
   add<Key extends string, Data, Result>(
     key: Key,
     handler: (
@@ -56,25 +56,30 @@ class MessagingBuilder<Schema extends HandlerMap> {
     return new MessagingBuilder<Next>(this.schema as Next, this.handlers);
   }
 
-  /* Start listening for messages. Returns the schema type for `typeof messaging` */
+  // Start listening for messages. Returns the schema type for `typeof messaging`
   init(): Schema {
-    browser.runtime.onMessage.addListener((msg: unknown, sender: browser.Runtime.MessageSender) => {
-      if (!isMessageRequest(msg)) return;
+    browser.runtime.onMessage.addListener(
+      (msg: unknown, sender: browser.Runtime.MessageSender) => {
+        if (!isMessageRequest(msg)) return;
 
-      const handler = this.handlers.get(msg.messageId);
+        const handler = this.handlers.get(msg.messageId);
 
-      if (!handler) {
-        return Promise.resolve({ ok: false, error: `No handler for "${msg.messageId}"` });
-      }
+        if (!handler) {
+          return Promise.resolve({
+            ok: false,
+            error: `No handler for "${msg.messageId}"`,
+          });
+        }
 
-      return Promise.resolve()
-        .then(() => handler(msg.data, sender))
-        .then((result) => ({ ok: true, result }))
-        .catch((err: unknown) => ({
-          ok: false,
-          error: err instanceof Error ? err.message : String(err),
-        }));
-    });
+        return Promise.resolve()
+          .then(() => handler(msg.data, sender))
+          .then((result) => ({ ok: true, result }))
+          .catch((err: unknown) => ({
+            ok: false,
+            error: err instanceof Error ? err.message : String(err),
+          }));
+      },
+    );
 
     return this.schema;
   }
@@ -107,7 +112,8 @@ export function createSender<Schema extends HandlerMap>() {
       data: DataOf<Schema, Key>,
     ) {
       return sendVia<ReturnOf<Schema, Key>>(
-        (req) => browser.tabs.sendMessage(tabId, req) as Promise<MessageResponse>,
+        (req) =>
+          browser.tabs.sendMessage(tabId, req) as Promise<MessageResponse>,
         key,
         data,
       );

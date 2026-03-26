@@ -30,4 +30,27 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("error", e);
       }
     });
+
+  // popup - bg - external api
+  document.getElementById("get-duck")?.addEventListener("click", async () => {
+    try {
+      const duck = await sender.send("get-duck", undefined);
+      const img = document.getElementById("duck-img") as HTMLImageElement;
+      img.src = duck.url;
+      img.style.display = "block";
+      result().textContent = duck.message ?? "🦆";
+    } catch (e) {
+      result().textContent = `error: ${e}`;
+    }
+  });
+
+  // popup - bg - post test
+  document.getElementById("test-post")?.addEventListener("click", async () => {
+    try {
+      const res = await sender.send("test-post", undefined);
+      result().textContent = `POST ok\njson: ${JSON.stringify(res.json, null, 2)}\nheaders: ${JSON.stringify(res.headers, null, 2)}`;
+    } catch (e) {
+      result().textContent = `error: ${e}`;
+    }
+  });
 });
