@@ -28,7 +28,7 @@ delete m.side_panel;
 
     if (hmrEnabled) {
       m.content_security_policy = {
-        extension_pages: `script-src 'self'; connect-src 'self' ws://localhost:${wsPort}`,
+        extension_pages: `script-src 'self'; connect-src 'self' https: ws://localhost:${wsPort}`,
       };
     }
 
