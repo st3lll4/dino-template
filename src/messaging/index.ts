@@ -8,8 +8,6 @@ import type {
   MessageResponse,
 } from "./types";
 
-export type { HandlerMap } from "./types";
-
 function isMessageRequest(msg: unknown): msg is MessageRequest {
   return (
     typeof msg === "object" &&
