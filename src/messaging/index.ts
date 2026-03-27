@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import type {
+  AnyHandler,
   HandlerMap,
   DataOf,
   ReturnOf,
@@ -16,11 +17,6 @@ function isMessageRequest(msg: unknown): msg is MessageRequest {
     (msg as Record<string, unknown>).__bridge === true
   );
 }
-
-type AnyHandler = (
-  data: unknown,
-  sender: browser.Runtime.MessageSender,
-) => unknown;
 
 async function sendVia<Result>(
   send: (req: MessageRequest) => Promise<MessageResponse>,
@@ -42,7 +38,6 @@ class MessagingBuilder<Schema extends HandlerMap> {
     this.handlers = handlers ?? new Map();
   }
 
-  // Register a handler
   add<Key extends string, Data, Result>(
     key: Key,
     handler: (
@@ -56,7 +51,6 @@ class MessagingBuilder<Schema extends HandlerMap> {
     return new MessagingBuilder<Next>(this.schema as Next, this.handlers);
   }
 
-  // Start listening for messages. Returns the schema type for `typeof messaging`
   init(): Schema {
     browser.runtime.onMessage.addListener(
       (msg: unknown, sender: browser.Runtime.MessageSender) => {
@@ -88,10 +82,6 @@ class MessagingBuilder<Schema extends HandlerMap> {
 export function createMessaging() {
   return new MessagingBuilder<{}>({});
 }
-
-/* ------------------------------------------------------------------ */
-/*  Sender – sends typed messages from popup / content / sidepanel    */
-/* ------------------------------------------------------------------ */
 
 export function createSender<Schema extends HandlerMap>() {
   return {
