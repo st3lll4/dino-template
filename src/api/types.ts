@@ -2,11 +2,13 @@ import { z } from "zod";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
-export type EndpointDefinition<TBody extends z.ZodTypeAny = z.ZodTypeAny> = {
+export type ZodBody = z.ZodObject<z.ZodRawShape> | z.ZodArray<z.ZodTypeAny>;
+
+export type EndpointDefinition = {
   url: string;
   method: HttpMethod;
   response: z.ZodTypeAny;
-  body?: TBody;
+  body?: ZodBody;
   headers?: Record<string, string>;
 };
 

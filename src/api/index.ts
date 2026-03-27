@@ -1,6 +1,17 @@
 import { z } from "zod";
 import type { ApiSchema, EndpointDefinition } from "./types";
 
+type JsonPrimitive = string | number | boolean | null;
+type JsonObject = { [key: string]: JsonValue };
+type JsonArray = JsonValue[];
+type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+
+type CallOptions = {
+  params?: Record<string, string>;
+  body?: JsonObject | JsonArray;
+  headers?: Record<string, string>;
+};
+
 type BodyArg<Def extends EndpointDefinition> = Def["body"] extends z.ZodTypeAny
   ? { body: z.infer<Def["body"]> }
   : { body?: never };
@@ -14,17 +25,15 @@ type ApiClient<Schema extends ApiSchema> = {
   ) => Promise<z.infer<Schema[Key]["response"]>>;
 };
 
+type AnyApiFunction = (options?: CallOptions) => Promise<JsonValue>;
+
 export function createApi<Schema extends ApiSchema>(schema: Schema): ApiClient<Schema> {
   const client = {} as ApiClient<Schema>;
 
   for (const key in schema) {
     const endpoint = schema[key];
 
-    (client as Record<string, unknown>)[key] = async (options: {
-      params?: Record<string, string>;
-      body?: unknown;
-      headers?: Record<string, string>;
-    } = {}) => {
+    (client as Record<string, AnyApiFunction>)[key] = async (options: CallOptions = {}): Promise<JsonValue> => {
       let url = endpoint.url;
 
       if (options.params) {
@@ -53,8 +62,8 @@ export function createApi<Schema extends ApiSchema>(schema: Schema): ApiClient<S
         throw new Error(`${endpoint.method} ${url} failed: ${res.status} ${res.statusText}`);
       }
 
-      const data = await res.json();
-      return endpoint.response.parse(data);
+      const data: JsonValue = await res.json();
+      return endpoint.response.parse(data) as JsonValue;;
     };
   }
 

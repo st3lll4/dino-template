@@ -50,16 +50,6 @@ xcrun safari-web-extension-converter dist/ --project-location ./safari --app-nam
 
 This generates an Xcode project you can build and distribute via the Mac App Store.
 
-## Tests
-
-```bash
-# run once and go
-npm test
-
-# stay and watch (very dedicated)
-npm run test:watch
-```
-
 ## HMR 101
 
 | Layer             | What happens                                                              |
@@ -108,7 +98,21 @@ export const api = createApi({
 const duck = await api.getRandomImage();
 ```
 
-You can pass query params, a request body, and custom headers at call time:
+If an endpoint defines a `body` schema, TypeScript enforces the correct shape at compile time:
+
+```ts
+testPost: {
+  url: "https://httpbin.org/post",
+  method: "POST",
+  body: z.object({ name: z.string() }),
+  response: z.object({ json: z.unknown() }),
+}
+
+await api.testPost({ body: { name: "Stella" } }); // ok
+await api.testPost({ body: { nme: "Stella" } });  // compile error
+```
+
+You can also pass query params and custom headers at call time:
 
 ```ts
 await api.getUser({ params: { id: "123" } });
