@@ -1,3 +1,5 @@
+import browser from "webextension-polyfill";
+
 export type HandlerMap = Record<string, (data: any) => any>;
 
 // extracts request type for a given message key
@@ -28,3 +30,8 @@ export type MessageResponse =
 export type HandlerSignature<Data, ReturnValue> = (
   data: Data,
 ) => ReturnValue | Promise<ReturnValue>;
+
+export type AnyHandler = (
+  data: unknown,
+  sender: browser.Runtime.MessageSender,
+) => unknown;

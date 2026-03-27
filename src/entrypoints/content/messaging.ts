@@ -1,12 +1,10 @@
 import { createMessaging } from "../../messaging";
 import type { HandlerSignature } from "../../messaging/types";
 
-const GET_SELECTED_TEXT = "get-selected-text" as const;
-
 export type ContentMessaging = {
-  [GET_SELECTED_TEXT]: HandlerSignature<void, string>;
+  "get-selected-text": HandlerSignature<void, string>;
 };
 
 createMessaging()
-  .add(GET_SELECTED_TEXT, () => window.getSelection()?.toString() ?? "")
+  .add("get-selected-text", () => window.getSelection()?.toString() ?? "")
   .init();

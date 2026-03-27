@@ -1,4 +1,5 @@
 (async () => {
+  // @ts-ignore
   const _browser = typeof browser !== "undefined" ? browser : chrome;
   try {
     await import(_browser.runtime.getURL("modules/messaging.js"));

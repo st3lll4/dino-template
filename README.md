@@ -1,7 +1,7 @@
 # ✨ Extension template
 
 Your cross-browser extension starter.
-No refreshing manually like it's 2012. Supports Chrome MV3 and Firefox MV3. Safari is supported via the Chrome MV3 build — feed `dist/` to `xcrun safari-web-extension-converter` to generate the Xcode project. Has HMR and end to end messaging! Type safe queries on the way.
+No refreshing manually like it's 2012. Supports Chrome MV3 and Firefox MV3. Safari is supported via the Chrome MV3 build — feed `dist/` to `xcrun safari-web-extension-converter` to generate the Xcode project. Has HMR, end-to-end typed messaging, and type-safe external API requests.
 
 ## 💅 Setup
 
@@ -38,7 +38,7 @@ npm run build
 npm run build:firefox
 ```
 
-Output lands in `dist/`. I'll setup ci/cd later. It's giving automation, queen.
+Output lands in `dist/`. TypeScript errors will fail the build — run `npm run typecheck` to check without building.
 
 ### Safari
 
@@ -50,16 +50,6 @@ xcrun safari-web-extension-converter dist/ --project-location ./safari --app-nam
 
 This generates an Xcode project you can build and distribute via the Mac App Store.
 
-## Tests
-
-```bash
-# run once and go
-npm test
-
-# stay and watch (very dedicated)
-npm run test:watch
-```
-
 ## HMR 101
 
 | Layer             | What happens                                                              |
@@ -69,6 +59,8 @@ npm run test:watch
 | Content scripts   | WebSocket event → reload active tab(s) to re-run content script injection |
 
 WebSocket server runs on port `5174`. Configurable in `vite.config.ts` if you're feeling creative.
+
+> Vite does not run type checking during dev — TypeScript errors will not stop HMR. Use `npm run typecheck` to catch them, or rely on your editor.
 
 ### HMR wiring notes
 
@@ -85,3 +77,59 @@ WebSocket server runs on port `5174`. Configurable in `vite.config.ts` if you're
 If you add another content-related entry/module that should trigger content tab reload, include its output file in the HMR watcher list in `src/hmr-plugin/index.ts`.
 
 The current setup does not auto-discover all entries from Rollup output, so new relevant outputs must be registered explicitly.
+
+## Typed API requests
+
+External API requests are defined in `src/api/endpoints.ts` using `createApi`. Each endpoint has a URL, HTTP method, and a [Zod](https://zod.dev) response schema. Zod validates the response at runtime and TypeScript infers the return type automatically.
+
+```ts
+export const api = createApi({
+  getRandomImage: {
+    url: "https://random-d.uk/api/random",
+    method: "GET",
+    response: z.object({
+      url: z.string(),
+      message: z.string().optional(),
+    }),
+  },
+});
+
+// return type is inferred: { url: string, message?: string }
+const duck = await api.getRandomImage();
+```
+
+If an endpoint defines a `body` schema, TypeScript enforces the correct shape at compile time:
+
+```ts
+testPost: {
+  url: "https://httpbin.org/post",
+  method: "POST",
+  body: z.object({ name: z.string() }),
+  response: z.object({ json: z.unknown() }),
+}
+
+await api.testPost({ body: { name: "Stella" } }); // ok
+await api.testPost({ body: { nme: "Stella" } });  // compile error
+```
+
+You can also pass query params and custom headers at call time:
+
+```ts
+await api.getUser({ params: { id: "123" } });
+await api.createUser({ body: { name: "Sally" } });
+await api.getUser({ headers: { Authorization: "Bearer token" } });
+```
+
+Static headers (e.g. API keys) can be set on the endpoint definition directly:
+
+```ts
+headers: { "Authorization": `Bearer ${token}` },
+```
+
+To avoid blocked calls on production, add `host_permissions` to `src/manifest.json` for each external domain you call:
+
+```json
+"host_permissions": ["https://api.example.com/*"]
+```
+
+> API requests should be made from the background script, which has stable network access and the correct permissions.
