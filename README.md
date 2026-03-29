@@ -147,6 +147,16 @@ To trigger a manual publish: **Actions → Publish → Run workflow → select b
 
 Publishing is opt-in. If store credentials are not configured, the build and artifact steps still run and succeed — only the publish steps are skipped.
 
+### Before your first publish
+
+The publish pipeline can only update an existing extension — it cannot create one. Before running `publish.yml` for the first time you need to manually submit your extension to each store and get it approved.
+
+**Chrome** — build the extension with `npm run build`, zip the `dist/` folder, and upload it via the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole). Fill in the store listing and submit for review. Once approved, copy the extension ID from the dashboard. For a full walkthrough see the [Chrome Web Store developer docs](https://developer.chrome.com/docs/webstore).
+
+**Firefox** — build with `npm run build:firefox`, zip the `dist/` folder, and upload it via the [AMO Developer Hub](https://addons.mozilla.org/developers/). Once listed, copy the extension ID from the manage page.
+
+After the first manual submission is approved, all future updates can go through `publish.yml`.
+
 ### Setting up publishing
 
 #### Firefox
