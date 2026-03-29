@@ -3,6 +3,18 @@
 Your cross-browser extension starter.
 No refreshing manually like it's 2012. Supports Chrome MV3 and Firefox MV3. Safari is supported via the Chrome MV3 build — feed `dist/` to `xcrun safari-web-extension-converter` to generate the Xcode project. Has HMR, end-to-end typed messaging, and type-safe external API requests.
 
+## Making it yours
+
+Before building anything, update these fields in `src/manifest.json`:
+
+| Field | Default | What to set |
+| ----- | ------- | ----------- |
+| `name` | `"extension"` | Your extension's name |
+| `version` | `"1.0"` | Your starting version |
+| `description` | `"small extension to test template"` | What your extension does |
+| `browser_specific_settings.gecko.id` | `"sigmar-template@st3lll4"` | A unique ID for Firefox AMO, e.g. `your-extension@yourname` |
+| `host_permissions` | demo API domains | The external domains your extension actually calls — remove the defaults if you are not using them |
+
 ## 💅 Setup
 
 ```bash
@@ -136,93 +148,4 @@ To avoid blocked calls on production, add `host_permissions` to `src/manifest.js
 
 ## CI/CD
 
-Two workflows are included in `.github/workflows/`:
-
-| Workflow | Trigger | What it does |
-| -------- | ------- | ------------ |
-| `ci.yml` | Every push to any branch | Typechecks, runs tests, and verifies Chrome and Firefox builds in parallel |
-| `publish.yml` | Manual only | Builds both extensions, uploads them as artifacts, and publishes to the stores if credentials are configured |
-
-To trigger a manual publish: **Actions → Publish → Run workflow → select branch → Run workflow**
-
-Publishing is opt-in. If store credentials are not configured, the build and artifact steps still run and succeed — only the publish steps are skipped.
-
-### Before your first publish
-
-The publish pipeline can only update an existing extension — it cannot create one. Before running `publish.yml` for the first time you need to manually submit your extension to each store and get it approved.
-
-**Chrome** — build the extension with `npm run build`, zip the `dist/` folder, and upload it via the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole). Fill in the store listing and submit for review. Once approved, copy the extension ID from the dashboard. For a full walkthrough see the [Chrome Web Store developer docs](https://developer.chrome.com/docs/webstore).
-
-**Firefox** — build with `npm run build:firefox`, zip the `dist/` folder, and upload it via the [AMO Developer Hub](https://addons.mozilla.org/developers/). Once listed, copy the extension ID from the manage page.
-
-After the first manual submission is approved, all future updates can go through `publish.yml`.
-
-### Setting up publishing
-
-#### Firefox
-
-1. Go to [addons.mozilla.org/developers/addon/api/key](https://addons.mozilla.org/en-US/developers/addon/api/key/) and generate an API key pair.
-2. Find your extension ID on the AMO manage page for your extension.
-
-Add to GitHub **Secrets** (`Settings → Secrets and variables → Actions → Secrets`):
-
-| Secret | Where to find it |
-| ------ | ---------------- |
-| `AMO_JWT_ISSUER` | Shown after generating the API key |
-| `AMO_JWT_SECRET` | Shown once after generating — save it immediately |
-
-Add to GitHub **Variables** (`Settings → Secrets and variables → Actions → Variables`):
-
-| Variable | Where to find it |
-| -------- | ---------------- |
-| `FIREFOX_EXTENSION_ID` | AMO manage page for your extension |
-
-#### Chrome
-
-Chrome requires OAuth2. This is a one-time setup.
-
-**Step 1 — Create OAuth credentials**
-
-1. Open [Google Cloud Console](https://console.cloud.google.com/) and create a project.
-2. Go to **APIs & Services → Library**, search for "Chrome Web Store API", and enable it.
-3. Go to **APIs & Services → Credentials → Create Credentials → OAuth client ID**.
-4. Choose **Desktop app** as the application type.
-5. Copy the **Client ID** and **Client Secret**.
-
-**Step 2 — Get a refresh token**
-
-Open the following URL in your browser (replace `YOUR_CLIENT_ID`):
-
-```
-https://accounts.google.com/o/oauth2/auth?client_id=YOUR_CLIENT_ID&response_type=code&scope=https://www.googleapis.com/auth/chromewebstore&redirect_uri=urn:ietf:wg:oauth:2.0:oob
-```
-
-Approve the permissions. Copy the authorization code shown, then exchange it for a refresh token:
-
-```bash
-curl -X POST https://oauth2.googleapis.com/token \
-  -d client_id=YOUR_CLIENT_ID \
-  -d client_secret=YOUR_CLIENT_SECRET \
-  -d code=YOUR_AUTH_CODE \
-  -d grant_type=authorization_code \
-  -d redirect_uri=urn:ietf:wg:oauth:2.0:oob
-```
-
-Copy `refresh_token` from the response. This token does not expire.
-
-**Step 3 — Add to GitHub**
-
-Add to GitHub **Secrets**:
-
-| Secret | Where to find it |
-| ------ | ---------------- |
-| `CHROME_CLIENT_ID` | Google Cloud Console → Credentials |
-| `CHROME_CLIENT_SECRET` | Google Cloud Console → Credentials |
-| `CHROME_REFRESH_TOKEN` | From the curl response above |
-
-Add to GitHub **Variables**:
-
-| Variable | Where to find it |
-| -------- | ---------------- |
-| `CHROME_EXTENSION_ID` | Chrome Web Store Developer Dashboard → your extension |
-
+CI runs on every push. A manual publish workflow is included for Chrome and Firefox. See [PUBLISHING.md](./PUBLISHING.md) for setup instructions.

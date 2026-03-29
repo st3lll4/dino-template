@@ -25,5 +25,10 @@
   ],
   "side_panel": {
     "default_path": "entrypoints/sidepanel/sidepanel.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "sigmar-template@st3lll4"
+    }
   }
 }

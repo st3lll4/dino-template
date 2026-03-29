@@ -80,7 +80,7 @@ jobs:
           path: dist/
 
       - name: Package
-        run: cd dist && zip -r ../extension-chrome.zip . && cd ..
+        run: cd dist && zip -r -X ../extension-chrome.zip . && cd ..
 
       - name: Get OAuth token
         run: |
@@ -134,7 +134,7 @@ jobs:
           path: dist/
 
       - name: Package
-        run: cd dist && zip -r ../extension-firefox.zip . && cd ..
+        run: cd dist && zip -r -X ../extension-firefox.zip . && cd ..
 
       - name: Create AMO JWT
         run: |

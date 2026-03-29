@@ -52,7 +52,14 @@ export type SourceManifest = {
     | { extension_pages?: string; sandbox?: string };
   side_panel?: { default_path: string };
   browser_specific_settings?: {
-    gecko?: { id: string; strict_min_version?: string };
+    gecko?: {
+      id: string;
+      strict_min_version?: string;
+      data_collection_permissions?: {
+        required: string[];
+        optional: string[];
+      };
+    };
   };
   [key: string]: unknown;
 };
