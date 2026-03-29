@@ -215,3 +215,4 @@ Add to GitHub **Variables**:
 | Variable | Where to find it |
 | -------- | ---------------- |
 | `CHROME_EXTENSION_ID` | Chrome Web Store Developer Dashboard → your extension |
+
