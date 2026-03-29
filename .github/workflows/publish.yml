@@ -1,0 +1,163 @@
+# Triggered manually from any branch via:
+# Actions → Publish → Run workflow → select branch → Run workflow
+#
+# Builds Chrome and Firefox extensions in parallel, uploads them as
+# artifacts (available for 90 days under this workflow run), then
+# publishes to the Chrome Web Store and Firefox Add-ons if the
+# required secrets are configured.
+#
+# Publishing is optional — if store secrets are not set, the build
+# and artifact steps still run and succeed. Configure secrets under:
+# Settings → Secrets and variables → Actions
+#
+# Required secrets per store:
+#
+#   Chrome Web Store:
+#     CHROME_EXTENSION_ID    — the extension ID from the store dashboard
+#     CHROME_CLIENT_ID       — OAuth2 client ID
+#     CHROME_CLIENT_SECRET   — OAuth2 client secret
+#     CHROME_REFRESH_TOKEN   — OAuth2 refresh token
+#
+#   Firefox Add-ons (AMO):
+#     FIREFOX_EXTENSION_ID   — the extension ID from the AMO dashboard
+#     AMO_JWT_ISSUER         — API key (issuer) from AMO developer hub
+#     AMO_JWT_SECRET         — API secret from AMO developer hub
+#
+# See PUBLISHING.md for instructions on obtaining these credentials.
+
+name: Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-chrome:
+    name: Build (Chrome)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extension-chrome
+          path: dist/
+
+  build-firefox:
+    name: Build (Firefox)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:firefox
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extension-firefox
+          path: dist/
+
+  publish-chrome:
+    name: Publish (Chrome Web Store)
+    runs-on: ubuntu-latest
+    needs: build-chrome
+    if: vars.CHROME_EXTENSION_ID != ''
+    env:
+      CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+      CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+      CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+      CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension-chrome
+          path: dist/
+
+      - name: Package
+        run: cd dist && zip -r ../extension-chrome.zip . && cd ..
+
+      - name: Get OAuth token
+        run: |
+          RESPONSE=$(curl -s -X POST https://oauth2.googleapis.com/token \
+            -d client_id="$CHROME_CLIENT_ID" \
+            -d client_secret="$CHROME_CLIENT_SECRET" \
+            -d refresh_token="$CHROME_REFRESH_TOKEN" \
+            -d grant_type=refresh_token)
+          TOKEN=$(echo "$RESPONSE" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+          if [ -z "$TOKEN" ]; then
+            echo "Failed to get OAuth token"
+            exit 1
+          fi
+          echo "CHROME_TOKEN=$TOKEN" >> $GITHUB_ENV
+
+      - name: Upload to Chrome Web Store
+        run: |
+          RESPONSE=$(curl -s -X PUT \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$CHROME_EXTENSION_ID" \
+            -H "Authorization: Bearer $CHROME_TOKEN" \
+            -H "x-goog-api-version: 2" \
+            -T extension-chrome.zip)
+          echo "$RESPONSE"
+          STATUS=$(echo "$RESPONSE" | grep -o '"uploadState":"[^"]*"' | cut -d'"' -f4)
+          if [ "$STATUS" != "SUCCESS" ]; then
+            echo "Upload failed with status: $STATUS"
+            exit 1
+          fi
+
+      - name: Publish
+        run: |
+          curl -s -X POST \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/$CHROME_EXTENSION_ID/publish" \
+            -H "Authorization: Bearer $CHROME_TOKEN" \
+            -H "x-goog-api-version: 2" \
+            -H "Content-Length: 0"
+
+  publish-firefox:
+    name: Publish (Firefox Add-ons)
+    runs-on: ubuntu-latest
+    needs: build-firefox
+    if: vars.FIREFOX_EXTENSION_ID != ''
+    env:
+      FIREFOX_EXTENSION_ID: ${{ vars.FIREFOX_EXTENSION_ID }}
+      AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+      AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension-firefox
+          path: dist/
+
+      - name: Package
+        run: cd dist && zip -r ../extension-firefox.zip . && cd ..
+
+      - name: Create AMO JWT
+        run: |
+          HEADER=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 | tr -d '=' | tr '+/' '-_' | tr -d '\n')
+          IAT=$(date +%s)
+          EXP=$((IAT + 60))
+          JTI=$(cat /proc/sys/kernel/random/uuid)
+          PAYLOAD=$(echo -n "{\"iss\":\"$AMO_JWT_ISSUER\",\"jti\":\"$JTI\",\"iat\":$IAT,\"exp\":$EXP}" \
+            | base64 | tr -d '=' | tr '+/' '-_' | tr -d '\n')
+          SIG=$(echo -n "$HEADER.$PAYLOAD" \
+            | openssl dgst -sha256 -hmac "$AMO_JWT_SECRET" -binary \
+            | base64 | tr -d '=' | tr '+/' '-_' | tr -d '\n')
+          echo "AMO_JWT=$HEADER.$PAYLOAD.$SIG" >> $GITHUB_ENV
+
+      - name: Upload to Firefox Add-ons
+        run: |
+          RESPONSE=$(curl -s -X POST \
+            "https://addons.mozilla.org/api/v5/addons/$FIREFOX_EXTENSION_ID/versions/" \
+            -H "Authorization: JWT $AMO_JWT" \
+            -F "upload=@extension-firefox.zip" \
+            -F "channel=listed")
+          echo "$RESPONSE"
+          if echo "$RESPONSE" | grep -q '"error"'; then
+            echo "Upload failed"
+            exit 1
+          fi
