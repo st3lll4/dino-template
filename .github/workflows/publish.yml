@@ -89,6 +89,7 @@ jobs:
             -d client_secret="$CHROME_CLIENT_SECRET" \
             -d refresh_token="$CHROME_REFRESH_TOKEN" \
             -d grant_type=refresh_token)
+          echo "Response: $RESPONSE"
           TOKEN=$(echo "$RESPONSE" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
           if [ -z "$TOKEN" ]; then
             echo "Failed to get OAuth token"
