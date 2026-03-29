@@ -14,7 +14,8 @@
     "build:firefox": "tsc --noEmit && cross-env BROWSER=firefox vite build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "Stella Tukia",
