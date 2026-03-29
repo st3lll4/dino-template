@@ -1,8 +1,10 @@
 import { defineConfig } from "vite";
+import path from "node:path";
 import { hmrPlugin } from "./src/hmr-plugin";
 
 export default defineConfig({
   root: "src",
+  cacheDir: path.resolve(__dirname, "node_modules/.vite"),
   build: {
     outDir: "../dist",
     rollupOptions: {

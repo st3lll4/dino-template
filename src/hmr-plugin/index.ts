@@ -14,6 +14,7 @@ import { watchFile } from "./watchFile";
 import { generateDevClient } from "./generateDevClient";
 
 export function hmrPlugin(options: HmrOptions): Plugin[] {
+  if (process.env.VITEST) return [];
   const browser: TargetBrowser =
     options.browser ?? (process.env.BROWSER as TargetBrowser) ?? "chrome";
   const wsPort = options.wsPort ?? 5174;

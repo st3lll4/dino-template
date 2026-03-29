@@ -108,8 +108,8 @@ testPost: {
   response: z.object({ json: z.unknown() }),
 }
 
-await api.testPost({ body: { name: "Stella" } }); // ok
-await api.testPost({ body: { nme: "Stella" } });  // compile error
+await api.testPost({ body: { name: "Mary" } }); // ok
+await api.testPost({ body: { nme: "Mary" } });  // compile error
 ```
 
 You can also pass query params and custom headers at call time:
