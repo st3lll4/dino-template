@@ -1,4 +1,4 @@
-# ✨ Extension template
+# 🦕 dino-template
 
 Your cross-browser extension starter.
 No refreshing manually like it's 2012. Supports Chrome MV3 and Firefox MV3. Safari is supported via the Chrome MV3 build — feed `dist/` to `xcrun safari-web-extension-converter` to generate the Xcode project. Has HMR, end-to-end typed messaging, and type-safe external API requests.
@@ -9,10 +9,10 @@ Before building anything, update these fields in `src/manifest.json`:
 
 | Field | Default | What to set |
 | ----- | ------- | ----------- |
-| `name` | `"extension"` | Your extension's name |
+| `name` | `"dino-template@st31114"` | Your extension's name |
 | `version` | `"1.0"` | Your starting version |
-| `description` | `"small extension to test template"` | What your extension does |
-| `browser_specific_settings.gecko.id` | `"sigmar-template@st3lll4"` | A unique ID for Firefox AMO, e.g. `your-extension@yourname` |
+| `description` | template description | What your extension does |
+| `browser_specific_settings.gecko.id` | `"dino-template@st3lll4"` | A unique ID for Firefox AMO, e.g. `your-extension@yourname` |
 | `host_permissions` | demo API domains | The external domains your extension actually calls — remove the defaults if you are not using them |
 
 ## 💅 Setup
@@ -145,6 +145,10 @@ To avoid blocked calls on production, add `host_permissions` to `src/manifest.js
 ```
 
 > API requests should be made from the background script, which has stable network access and the correct permissions.
+
+## Logging
+
+Each context has a logger created with `createLogger(prefix)` from `src/logger.ts`, which wraps `console` with a `[prefix]` tag. The content script inlines the same pattern directly to avoid static imports.
 
 ## CI/CD
 

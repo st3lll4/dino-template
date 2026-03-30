@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "extension",
+  "name": "dino-template@st31114",
   "version": "1.0",
-  "description": "small extension to test template",
+  "description": "A small browser extension template, built with TypeScript and Vite. Supports both Chrome and Firefox, has HMR, type safe messaging and API queries and minimal outside deps for the best development experience.",
   "background": {
     "service_worker": "background.js"
   },
@@ -28,7 +28,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "sigmar-template@st3lll4"
+      "id": "dino-template@st3lll4"
     }
   }
 }
