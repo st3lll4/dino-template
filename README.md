@@ -1,7 +1,7 @@
 # 🦕 dino-template
 
 Your cross-browser extension starter.
-No refreshing manually like it's 2012. Supports Chrome MV3 and Firefox MV3. Safari is supported via the Chrome MV3 build — feed `dist/` to `xcrun safari-web-extension-converter` to generate the Xcode project. Has HMR, end-to-end typed messaging, and type-safe external API requests.
+No refreshing manually like it's 2012. Supports Chrome MV3 and Firefox MV3. Safari is supported via the Chrome MV3 build. Has HMR, end-to-end typed messaging, and type-safe external API requests.
 
 ## Making it yours
 
@@ -15,15 +15,15 @@ Before building anything, update these fields in `src/manifest.json`:
 | `browser_specific_settings.gecko.id` | `"dino-template@st3lll4"` | A unique ID for Firefox AMO, e.g. `your-extension@yourname` |
 | `host_permissions` | demo API domains | The external domains your extension actually calls — remove the defaults if you are not using them |
 
-## 💅 Setup
+## Setup
 
 ```bash
 npm install
 ```
 
-## 🔥 Dev mode
+## Dev mode
 
-Vite watches your files, rebuilds on save, and HMR keeps your extension pages fresh in real time. Iconic.
+Vite watches your files, rebuilds on save, and HMR keeps your extension pages fresh in real time. iconic.
 
 ```bash
 # Chrome
@@ -40,7 +40,7 @@ Then load your extension from `dist/`:
 
 ## Production build
 
-When you're ready to go live:
+When you're ready to go to prod:
 
 ```bash
 # Chrome
@@ -62,33 +62,23 @@ xcrun safari-web-extension-converter dist/ --project-location ./safari --app-nam
 
 This generates an Xcode project you can build and distribute via the Mac App Store.
 
-## HMR 101
 
-| Layer             | What happens                                                              |
-| ----------------- | ------------------------------------------------------------------------- |
-| Popup / sidepanel | Native Vite HMR via `localhost:5173`                                      |
-| Background script | WebSocket event → reload active tab(s) then `browser.runtime.reload()`     |
-| Content scripts   | WebSocket event → reload active tab(s) to re-run content script injection |
-
-WebSocket server runs on port `5174`. Configurable in `vite.config.ts` if you're feeling creative.
-
-> Vite does not run type checking during dev — TypeScript errors will not stop HMR. Use `npm run typecheck` to catch them, or rely on your editor.
-
-### HMR wiring notes
+## HMR
 
 - This template uses `vite build --watch` + a custom WebSocket bridge for extension-only reload behavior.
-- Change detection is hash-based in `src/hmr-plugin/watchFile.ts`, so touched-but-unchanged outputs are ignored.
 - Background updates are prioritized over content updates when both are detected in one debounce window.
 - Current watched outputs are:
   - `dist/background.js`
   - `dist/content.js`
   - `dist/modules/messaging.js`
 
+> Vite does not run type checking during dev — TypeScript errors will not stop HMR. Use `npm run typecheck` to catch them, or rely on your editor.
+
 ### Adding new scripts and modules
 
 If you add another content-related entry/module that should trigger content tab reload, include its output file in the HMR watcher list in `src/hmr-plugin/index.ts`.
 
-The current setup does not auto-discover all entries from Rollup output, so new relevant outputs must be registered explicitly.
+The current setup does not auto-discover entries, so new relevant outputs must be registered !
 
 ## Typed API requests
 
