@@ -2,6 +2,9 @@ import browser from "webextension-polyfill";
 import { createMessaging, createSender } from "../../messaging";
 import type { ContentMessaging } from "../content/messaging";
 import { api } from "../../api/endpoints";
+import { createLogger } from "../../logger";
+
+const log = createLogger("background");
 
 export const messaging = createMessaging()
   .add("ping", () => ping())
@@ -23,6 +26,7 @@ async function getActiveTab(): Promise<browser.Tabs.Tab> {
 }
 
 function ping() {
+  log.info("ping received");
   return {
     pong: true as const,
     source: "background" as const,
