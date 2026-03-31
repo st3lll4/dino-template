@@ -1,7 +1,6 @@
 # 🦕 dino-template
 
-Your cross-browser extension starter.
-No refreshing manually like it's 2012. Supports Chrome MV3 and Firefox MV3. Safari is supported via the Chrome MV3 build. Has HMR, end-to-end typed messaging, and type-safe external API requests.
+Your cross-browser extension starter. Supports Chrome MV3 and Firefox MV3. Safari is supported via the Chrome MV3 build. Has HMR, end-to-end typed messaging, and type-safe external API requests.
 
 ## Making it yours
 

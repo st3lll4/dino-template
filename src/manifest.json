@@ -2,11 +2,11 @@
   "manifest_version": 3,
   "name": "dino-template@st31114",
   "version": "1.0",
-  "description": "A small browser extension template, built with TypeScript and Vite. Supports both Chrome and Firefox, has HMR, type safe messaging and API queries and minimal outside deps for the best development experience.",
+  "description": "A small browser extension template, built with TypeScript and Vite. Supports both Chrome and Firefox.",
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "activeTab", "scripting", "sidePanel", "tabs"],
+  "permissions": ["sidePanel", "tabs"],
   "host_permissions": ["https://random-d.uk/*", "https://httpbin.org/*"],
   "action": {
     "default_popup": "entrypoints/popup/popup.html"
