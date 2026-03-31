@@ -12,6 +12,9 @@ import type {
 import { transformManifest } from "./transformManifest";
 import { watchFile } from "./watchFile";
 import { generateDevClient } from "./generateDevClient";
+import { createLogger } from "../logger";
+
+const log = createLogger("hmr");
 
 export function hmrPlugin(options: HmrOptions): Plugin[] {
   if (process.env.VITEST) return [];
@@ -51,10 +54,10 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
 
     flushTimer = setTimeout(() => {
       if (pendingEvent === "content") {
-        console.log(`[hmr] content script rebuilt, reloading tabs`);
+        log.info("content script rebuilt, reloading tabs");
         broadcast({ event: "content-updated" });
       } else if (pendingEvent === "background") {
-        console.log(`[hmr] background rebuilt, reloading extension`);
+        log.info("background rebuilt, reloading extension");
         broadcast({ event: "background-updated" });
       }
 
@@ -110,10 +113,10 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
           path.join(outDir, "background.html"),
           `<!doctype html><script type="module" src="${bgScript}"></script>`,
         );
-        console.log(`[hmr] background.html written for firefox`);
+        log.info("background.html written for firefox");
       }
 
-      console.log(`[hmr] manifest.json written for ${browser}`);
+      log.info(`manifest.json written for ${browser}`);
     },
   };
 
@@ -130,11 +133,11 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
       wss.on("connection", (ws) => {
         // new client connected (background script)
         clients.add(ws);
-        console.log(`[hmr] extension connected`);
+        log.info("extension connected");
 
         ws.on("close", () => {
           clients.delete(ws);
-          console.log(`[hmr] extension disconnected`);
+          log.info("extension disconnected");
         });
 
         ws.on("error", () => {
@@ -149,19 +152,19 @@ export function hmrPlugin(options: HmrOptions): Plugin[] {
             return;
           }
           if (msg.event === "ext:ready") {
-            console.log(`[hmr] extension ready`);
+            log.info("extension ready");
           }
           if (msg.event === "ext:error") {
-            console.error(`[hmr] error: ${msg.message}`);
+            log.error(msg.message);
           }
         });
       });
 
       wss.on("error", (err) => {
-        console.error(`[hmr] WebSocket server error: ${err.message}`);
+        log.error("WebSocket server error:", err.message);
       });
 
-      console.log(`[hmr] WS server started on ws://localhost:${wsPort}`);
+      log.info(`WS server started on ws://localhost:${wsPort}`);
 
       const outDir = path.resolve(
         resolvedConfig.root,

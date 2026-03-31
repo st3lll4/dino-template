@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "extension",
+  "name": "dino-template@st31114",
   "version": "1.0",
-  "description": "small extension to test template",
+  "description": "A small browser extension template, built with TypeScript and Vite. Supports both Chrome and Firefox.",
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "activeTab", "scripting", "sidePanel", "tabs"],
+  "permissions": ["sidePanel", "tabs"],
   "host_permissions": ["https://random-d.uk/*", "https://httpbin.org/*"],
   "action": {
     "default_popup": "entrypoints/popup/popup.html"
@@ -25,5 +25,10 @@
   ],
   "side_panel": {
     "default_path": "entrypoints/sidepanel/sidepanel.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "dino-template@st3lll4"
+    }
   }
 }

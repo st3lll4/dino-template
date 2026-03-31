@@ -37,8 +37,11 @@ delete m.side_panel;
         gecko: {
           id: "extension@example.com",
           strict_min_version: "109.0",
+          data_collection_permissions: { required: ["none"], optional: [] },
         },
       };
+    } else {
+      m.browser_specific_settings.gecko!.data_collection_permissions = { required: ["none"], optional: [] };
     }
   }
 

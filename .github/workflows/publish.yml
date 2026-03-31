@@ -80,7 +80,7 @@ jobs:
           path: dist/
 
       - name: Package
-        run: cd dist && zip -r ../extension-chrome.zip . && cd ..
+        run: cd dist && zip -r -X ../extension-chrome.zip . && cd ..
 
       - name: Get OAuth token
         run: |
@@ -89,7 +89,7 @@ jobs:
             -d client_secret="$CHROME_CLIENT_SECRET" \
             -d refresh_token="$CHROME_REFRESH_TOKEN" \
             -d grant_type=refresh_token)
-          TOKEN=$(echo "$RESPONSE" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+          TOKEN=$(echo "$RESPONSE" | grep -o '"access_token": *"[^"]*"' | cut -d'"' -f4)
           if [ -z "$TOKEN" ]; then
             echo "Failed to get OAuth token"
             exit 1
@@ -104,7 +104,7 @@ jobs:
             -H "x-goog-api-version: 2" \
             -T extension-chrome.zip)
           echo "$RESPONSE"
-          STATUS=$(echo "$RESPONSE" | grep -o '"uploadState":"[^"]*"' | cut -d'"' -f4)
+          STATUS=$(echo "$RESPONSE" | grep -o '"uploadState": *"[^"]*"' | cut -d'"' -f4)
           if [ "$STATUS" != "SUCCESS" ]; then
             echo "Upload failed with status: $STATUS"
             exit 1
@@ -134,7 +134,7 @@ jobs:
           path: dist/
 
       - name: Package
-        run: cd dist && zip -r ../extension-firefox.zip . && cd ..
+        run: cd dist && zip -r -X ../extension-firefox.zip . && cd ..
 
       - name: Create AMO JWT
         run: |

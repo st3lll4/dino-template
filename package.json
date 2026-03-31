@@ -1,7 +1,7 @@
 {
   "name": "extension",
   "version": "1.0.0",
-  "description": "",
+  "description": "A small browser extension template, built with TypeScript and Vite. Supports both Chrome and Firefox, has HMR, type safe messaging and API queries and minimal outside deps for the best development experience.",
   "main": "index.ts",
   "scripts": {
     "dev": "npm-run-all --parallel dev:build dev:serve",

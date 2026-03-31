@@ -1,5 +1,8 @@
 import { createSender } from "../../messaging";
 import type { BackgroundMessaging } from "../background";
+import { createLogger } from "../../logger";
+
+const log = createLogger("popup");
 
 const sender = createSender<BackgroundMessaging>();
 const result = () => document.getElementById("result") as HTMLParagraphElement;
@@ -12,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
       result().textContent = `Ping OK\n${JSON.stringify(res, null, 2)}`;
     } catch (e) {
       result().textContent = `ping error: ${e}`;
-      console.log("error", e);
+      log.error("error", e);
     }
   });
 
@@ -27,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
           : "Selected text\n(none)";
       } catch (e) {
         result().textContent = `error: ${e}`;
-        console.log("error", e);
+        log.error("error", e);
       }
     });
 
