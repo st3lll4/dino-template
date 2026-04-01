@@ -136,6 +136,9 @@ jobs:
       - name: Package
         run: cd dist && zip -r -X ../extension-firefox.zip . && cd ..
 
+      - name: Debug manifest                                                                                                                                                                         
+        run: cat dist/manifest.json    
+
       - name: Create AMO JWT
         run: |
           HEADER=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 | tr -d '=' | tr '+/' '-_' | tr -d '\n')
