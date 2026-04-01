@@ -141,4 +141,4 @@ Each context has a logger created with `createLogger(prefix)` from `src/logger.t
 
 ## CI/CD
 
-CI runs on every push. A manual publish workflow is included for Chrome and Firefox. See [PUBLISHING.md](./PUBLISHING.md) for setup instructions.
+CI runs on every push. A manual publish workflow is included for Chrome and Firefox. See [PUBLISHING.md](./PUBLISHING.md) for setup instructions. Renovate bot is configured to keep dependencies up to date.
