@@ -151,12 +151,14 @@ jobs:
 
       - name: Upload to Firefox Add-ons
         run: |
+          echo "Uploading to AMO with extension ID: $FIREFOX_EXTENSION_ID"
+          echo "Zip size: $(du -sh extension-firefox.zip)"
           RESPONSE=$(curl -s -X POST \
             "https://addons.mozilla.org/api/v5/addons/$FIREFOX_EXTENSION_ID/versions/" \
             -H "Authorization: JWT $AMO_JWT" \
             -F "upload=@extension-firefox.zip" \
             -F "channel=listed")
-          echo "$RESPONSE"
+          echo "AMO response: $RESPONSE"
           if echo "$RESPONSE" | grep -q '"error"'; then
             echo "Upload failed"
             exit 1
