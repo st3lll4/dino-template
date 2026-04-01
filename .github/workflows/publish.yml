@@ -42,7 +42,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: extension-chrome
           path: dist/
@@ -58,7 +58,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:firefox
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: extension-firefox
           path: dist/
@@ -74,7 +74,7 @@ jobs:
       CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
       CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: extension-chrome
           path: dist/
@@ -128,7 +128,7 @@ jobs:
       AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
       AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: extension-firefox
           path: dist/
@@ -157,7 +157,7 @@ jobs:
           echo "Uploading to AMO with extension ID: $FIREFOX_EXTENSION_ID"
           echo "Zip size: $(du -sh extension-firefox.zip)"
           RESPONSE=$(curl -s -X POST \
-            "https://addons.mozilla.org/api/v5/addons/$FIREFOX_EXTENSION_ID/versions/" \
+            "https://addons.mozilla.org/api/v5/addons/addon/$FIREFOX_EXTENSION_ID/versions/" \
             -H "Authorization: JWT $AMO_JWT" \
             -F "upload=@extension-firefox.zip" \
             -F "channel=listed")
