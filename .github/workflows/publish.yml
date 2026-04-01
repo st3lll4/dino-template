@@ -154,15 +154,38 @@ jobs:
 
       - name: Upload to Firefox Add-ons
         run: |
-          echo "Uploading to AMO with extension ID: $FIREFOX_EXTENSION_ID"
-          echo "Zip size: $(du -sh extension-firefox.zip)"
-          RESPONSE=$(curl -s -X POST \
-            "https://addons.mozilla.org/api/v5/addons/addon/$FIREFOX_EXTENSION_ID/versions/" \
+          echo "Step 1: uploading zip to AMO"
+          UPLOAD_RESPONSE=$(curl -s -X POST \
+            "https://addons.mozilla.org/api/v5/addons/upload/" \
             -H "Authorization: JWT $AMO_JWT" \
             -F "upload=@extension-firefox.zip" \
             -F "channel=listed")
-          echo "AMO response: $RESPONSE"
-          if echo "$RESPONSE" | grep -q '"error"'; then
-            echo "Upload failed"
+          echo "Upload response: $UPLOAD_RESPONSE"
+          UUID=$(echo "$UPLOAD_RESPONSE" | grep -o '"uuid":"[^"]*"' | cut -d'"' -f4)
+          if [ -z "$UUID" ]; then
+            echo "Failed to get upload UUID"
+            exit 1
+          fi
+          echo "Got UUID: $UUID"
+
+          echo "Step 2: polling until valid"
+          for i in $(seq 1 10); do
+            VALID=$(curl -s \
+              "https://addons.mozilla.org/api/v5/addons/upload/$UUID/" \
+              -H "Authorization: JWT $AMO_JWT" | grep -o '"valid":[^,}]*' | cut -d: -f2)
+            echo "Valid: $VALID"
+            if [ "$VALID" = "true" ]; then break; fi
+            sleep 3
+          done
+
+          echo "Step 3: creating version"
+          VERSION_RESPONSE=$(curl -s -X POST \
+            "https://addons.mozilla.org/api/v5/addons/addon/$FIREFOX_EXTENSION_ID/versions/" \
+            -H "Authorization: JWT $AMO_JWT" \
+            -H "Content-Type: application/json" \
+            -d "{\"upload\":\"$UUID\"}")
+          echo "Version response: $VERSION_RESPONSE"
+          if echo "$VERSION_RESPONSE" | grep -q '"error"'; then
+            echo "Version creation failed"
             exit 1
           fi
