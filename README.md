@@ -8,7 +8,7 @@ Before building anything, update these fields in `src/manifest.json`:
 
 | Field | Default | What to set |
 | ----- | ------- | ----------- |
-| `name` | `"dino-template@st31114"` | Your extension's name |
+| `name` | `"dino-template@st3lll4"` | Your extension's name |
 | `version` | `"1.0"` | Your starting version |
 | `description` | template description | What your extension does |
 | `browser_specific_settings.gecko.id` | `"dino-template@st3lll4"` | A unique ID for Firefox AMO, e.g. `your-extension@yourname` |
@@ -77,7 +77,7 @@ This generates an Xcode project you can build and distribute via the Mac App Sto
 
 If you add another content-related entry/module that should trigger content tab reload, include its output file in the HMR watcher list in `src/hmr-plugin/index.ts`.
 
-The current setup does not auto-discover entries, so new relevant outputs must be registered !
+The current setup does not auto-discover entries, so new relevant outputs must be registered one by one!
 
 ## Typed API requests
 

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "sigmar-template@st3lll4",
+  "name": "dino-template@st3lll4",
   "version": "1.1",
   "description": "A small browser extension template, built with TypeScript and Vite. Supports both Chrome and Firefox.",
   "background": {
@@ -28,7 +28,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "sigmar-template@st3lll4"
+      "id": "dino-template@st3lll4"
     }
   }
 }

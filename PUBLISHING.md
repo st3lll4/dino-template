@@ -31,7 +31,7 @@ AMO's linter will flag an `Unsafe call to import` warning in `content.js`. This 
 
 > The dynamic import() in content.js loads modules/messaging.js using browser.runtime.getURL(), which resolves to a locally bundled file within the extension package. This is the standard pattern for loading ES modules in content scripts. No remote code is executed.
 
-After the first manual submission is approved, all future updates can go through `publish.yml`.
+After the first manual submission is approved, all future updates can go through `publish.yml`. Note that most of the times, your sumbission will not be published immideately and will still need to go through manual review.
 
 ## Setting up credentials
 
