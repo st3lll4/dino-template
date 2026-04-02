@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "dino-template@st3lll4",
-  "version": "1.1",
+  "version": "1.0",
   "description": "A small browser extension template, built with TypeScript and Vite. Supports both Chrome and Firefox.",
   "background": {
     "service_worker": "background.js"
