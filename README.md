@@ -53,7 +53,7 @@ Output lands in `dist/`. TypeScript errors will fail the build — run `npm run 
 
 ### Safari
 
-Safari uses the Chrome MV3 build as input. After running `npm run build`, convert it with [https://developer.apple.com/documentation/safariservices/packaging-a-web-extension-for-safari](safari-web-extension-packager)
+Safari uses the Chrome MV3 build as input. After running `npm run build`, convert it with [safari-web-extension-packager](https://developer.apple.com/documentation/safariservices/packaging-a-web-extension-for-safari)
 
 ## HMR
 
