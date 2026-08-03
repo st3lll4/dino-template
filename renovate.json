@@ -2,4 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "dependencyDashboard": true
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "(non-major)"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "groupName": "(major)"
+    }
+  ]
 }
